@@ -95,7 +95,7 @@ const Header = () => {
 
   // Check if brand dropdown should be shown
   const shouldShowBrandDropdown = () => {
-    const isZeptoOperator = showSelectedOperator === "Swiggy";
+    const isZeptoOperator = showSelectedOperator === "Zepto";
     const isValidPage = location.pathname === "/" ||
       location.pathname === "/performance-overview" ||
       location.pathname === "/campaigns" ||
