@@ -1,29 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import ErrorBoundary from "../../../common/erroBoundryComponent";
-import EditRuleCreator from "../EditRuleCreator";
+import AddRuleCreator from "../addRuleCreator";
 
 const EditRuleModal = (props) => {
-  const { 
-    showEditRuleModal,
-    setShowEditRuleModal, 
-    editRuleData, 
-    getRulesData,
-    operator 
-  } = props;
 
-  return (
-    <EditRuleCreator
-      open={showEditRuleModal}
-      editRuleData={editRuleData}
-      onSave={() => {
-        getRulesData(true); // Force refresh after edit
-        setShowEditRuleModal(false);
-      }}
-      onClose={() => setShowEditRuleModal(false)}
-      setShowRuleModal={setShowEditRuleModal}
-    />
-  );
-};
+    const { showEditRuleModal,
+        setShowEditRuleModal, editRuleData, getRulesData } = props;
+    return (
+        <Modal show={showEditRuleModal} onHide={() => setShowEditRuleModal(false)} size="md">
+            <Modal.Header className="border-bottom" closeButton>
+                <Modal.Title className="text-dark">
+                    Edit Rule
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="create-rule-con">
+                <ErrorBoundary>
+                    <AddRuleCreator
+                        getRulesData={getRulesData}
+                        setShowRuleModal={setShowEditRuleModal}
+                        showRuleModal={showEditRuleModal} editRuleData={editRuleData} />
+                </ErrorBoundary>
+            </Modal.Body>
+        </Modal>
+    )
+}
 
 export default EditRuleModal;

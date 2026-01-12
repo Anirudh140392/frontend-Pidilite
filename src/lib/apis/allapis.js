@@ -100,28 +100,61 @@ export const CAMPAIGN_APIS = {
   },
 
   PLAY_PAUSE_CAMPAIGN: {
-    url: "/pidilite/play-pause",
+    url: "/play-pause",
     method: "PUT",
-    label: "Play/Pause Campaign",
-    description: "Change campaign status (ACTIVE, PAUSED, STOPPED, ON_HOLD)",
+    label: "Play/Pause Campaign (Start/Stop)",
+    description: "Change campaign status by starting or stopping a campaign on Blinkit platform",
     params: {
-      platform: "string",
-      campaign_id: "string",
-      status: "string (ACTIVE, PAUSED, STOPPED, ON_HOLD)",
-      brand_name: "string (for Zepto)",
+      campaign_id: "number",
+      action: "string (START or STOP)",
+      platform: "string (passed as query parameter)",
     },
+    queryParams: {
+      platform: "string (Blinkit - lowercase: 'blinkit')"
+    },
+    response: {
+      success: "boolean",
+      message: "string",
+      campaign_id: "number",
+      campaign_name: "string",
+      previous_status: "string",
+      new_status: "string",
+      action_taken: "string (started or stopped)",
+      budget_info: {
+        budget: "number",
+        billed: "number",
+        remaining: "number"
+      },
+      warning: {
+        message: "string (optional)",
+        budget: "number",
+        billed: "number",
+        remaining: "number",
+        recommendation: "string"
+      }
+    }
   },
 
   BUDGET_CHANGE: {
-    url: "/pidilite/budget-change",
+    url: "/budget_change",
     method: "PUT",
     label: "Update Campaign Budget",
-    description: "Modify the budget for a specific campaign",
+    description: "Modify the budget for a specific campaign on Blinkit platform",
     params: {
-      campaign_id: "string",
+      campaign_id: "number",
       budget: "number",
-      platform: "string",
+      platform: "string (passed as query parameter)",
     },
+    queryParams: {
+      platform: "string (Blinkit - lowercase: 'blinkit')"
+    },
+    response: {
+      success: "boolean",
+      message: "string",
+      campaign_id: "number",
+      new_budget: "number",
+      platform: "string"
+    }
   },
 
   CAMPAIGN_GRAPH: {
@@ -180,6 +213,32 @@ export const KEYWORD_APIS = {
       status: "string",
       platform: "string",
     },
+  },
+
+  BID_CHANGE: {
+    url: "/bid_change",
+    method: "PUT",
+    label: "Update Keyword Bid",
+    description: "Modify the bid amount for a specific keyword on Blinkit platform",
+    params: {
+      campaign_id: "number",
+      keyword: "string",
+      bid: "number",
+      match_type: "string (EXACT, PHRASE, BROAD)",
+      platform: "string (passed as query parameter)",
+    },
+    queryParams: {
+      platform: "string (Blinkit - lowercase: 'blinkit')"
+    },
+    response: {
+      success: "boolean",
+      message: "string",
+      campaign_id: "number",
+      keyword: "string",
+      match_type: "string",
+      new_bid: "number",
+      platform: "string"
+    }
   },
 };
 

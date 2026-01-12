@@ -34,34 +34,44 @@ const BidCell = ({
 
       const payload = {
         platform,
-        campaign_id: String(campaignId),
+        campaign_id: Number(campaignId),
         bid: Number(bid),
         keyword,
         match_type: keywordType,
-        brand_name,
       };
 
-      const response = await fetch(
-        "https://react-api-script.onrender.com/pidilite/bid-change",
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      // Build the URL with platform as query parameter (lowercase)
+      const platformLower = platform.toLowerCase();
+      const url = `https://react-api-script.onrender.com/pidilite/bid_change?platform=${platformLower}`;
+
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) throw new Error("Failed to update bid");
 
       const updatedData = await response.json();
-      const newBid = updatedData.bid ?? bid;
+      // Handle response with new_bid field (as per API specification)
+      const newBid = updatedData.new_bid !== undefined ? updatedData.new_bid : (updatedData.bid ?? bid);
 
       // ✅ Always call with consistent signature
       onUpdate(campaignId, keyword, newBid, keywordType);
 
       onSnackbarOpen(updatedData.message || "Bid updated successfully!", "success");
+
+      // Handle warning if present in response
+      if (updatedData.warning && updatedData.warning.message) {
+        // Show warning message after a short delay so it doesn't get hidden by success message
+        setTimeout(() => {
+          const warningMessage = `⚠️ ${updatedData.warning.message}\n\n💡 ${updatedData.warning.recommendation || ''}`.trim();
+          onSnackbarOpen(warningMessage, "warning");
+        }, 1500);
+      }
     } catch (error) {
       console.error("Error updating bid:", error);
       onSnackbarOpen("Failed to update bid!", "error");

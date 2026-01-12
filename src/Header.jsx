@@ -24,7 +24,7 @@ const Header = () => {
   ];
 
   // Available operators - Flipkart, Zepto, and Blinkit
-  const availableOperators = ["Swiggy","Blinkit"];
+  const availableOperators = ["Swiggy","Blinkit","Zepto"];
 
   // Get unique brands for dropdown
   const uniqueBrands = React.useMemo(() => {
@@ -168,51 +168,7 @@ const Header = () => {
           </Dropdown>
 
           {/* Brand Dropdown - only show when operator is Zepto and on specific pages */}
-          {shouldShowBrandDropdown() && (
-            <Box sx={{ minWidth: 200, mx: 1 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel
-                  id="brand-select-label"
-                  sx={{
-                    fontSize: '0.875rem',
-                    backgroundColor: 'white',
-                    px: 0.5
-                  }}
-                >
-                  Select Brand
-                </InputLabel>
-                <Select
-                  labelId="brand-select-label"
-                  id="brand-select"
-                  value={selectedBrand}
-                  label="Select Brand"
-                  onChange={handleBrandChange}
-                  sx={{
-                    height: '36px',
-                    backgroundColor: 'white',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#ddd',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#0081ff',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#0081ff',
-                    }
-                  }}
-                >
-                  <MenuItem value="">
-                    <em>All Brands</em>
-                  </MenuItem>
-                  {uniqueBrands.map((brand) => (
-                    <MenuItem key={brand} value={brand}>
-                      {brand}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-          )}
+         
 
           {/* Client Select */}
           <SelectFieldComponent

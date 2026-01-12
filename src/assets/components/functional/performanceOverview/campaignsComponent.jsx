@@ -197,7 +197,7 @@ const CampaignsComponent = (props, ref) => {
                 return (
                     <Switch
                         checked={isActive}
-                        onChange={() => handleToggle(
+                        onChange={() => handleToggleB(
                             params.row.campaign_id,
                             status,
 
@@ -918,14 +918,38 @@ const CampaignsComponent = (props, ref) => {
     };
 
     const handleToggle = (campaignId, currentStatus) => {
+        console.log('currentStatus', currentStatus)
         // Determine new status based on current status
         const statusStr = String(currentStatus).toUpperCase().trim();
+        console.log("Toggling campaign:", campaignId, "Current status:", statusStr);
         let newStatus;
 
         if (statusStr === 'ACTIVE' || statusStr === 'ON_HOLD') {
             newStatus = 'STOPPED';
         } else {
             newStatus = 'ACTIVE';
+        }
+
+        setConfirmation({
+            show: true,
+            campaignId,
+            campaignType: statusStr,
+            adType: null,
+            currentStatus
+        });
+    };
+
+    const handleToggleB = (campaignId, currentStatus) => {
+        console.log('currentStatus', currentStatus)
+        // Determine new status based on current status
+        const statusStr = String(currentStatus).toUpperCase().trim();
+        console.log("Toggling campaign:", campaignId, "Current status:", statusStr);
+        let newStatus;
+
+        if (statusStr === 'ACTIVE' || statusStr === 'ON_HOLD') {
+            newStatus = 'STOP';
+        } else {
+            newStatus = 'START';
         }
 
         setConfirmation({
@@ -945,18 +969,24 @@ const CampaignsComponent = (props, ref) => {
 
     const confirmStatusChange = async (campaignId, newStatus, adType) => {
         try {
+            
             // Set loading state for this campaign
             setUpdatingCampaigns(prev => ({ ...prev, [campaignId]: true }));
 
             const token = localStorage.getItem("accessToken");
 
+            // Determine action based on new status
+            const action = (newStatus === 'ACTIVE' || newStatus === 'ON_HOLD') ? 'PAUSE' : 'START';
+
             const requestBody = {
                 platform: operator,
                 campaign_id: campaignId,
-                status: newStatus
+                action: action
             };
 
-            const playPauseUrl = `https://react-api-script.onrender.com/pidilite/play-pause`;
+            // Build the URL with platform as query parameter (lowercase)
+            const platformLower = operator.toLowerCase();
+            const playPauseUrl = `https://react-api-script.onrender.com/pidilite/play-pause?platform=${platformLower}`;
 
             console.log("Sending play-pause request:", requestBody);
 
@@ -976,7 +1006,20 @@ const CampaignsComponent = (props, ref) => {
             const data = await response.json();
             console.log("Campaign status updated successfully", data);
 
-            // Step 1: Build URL and cache key for refresh
+            // Determine the new status to update locally
+            const updatedNewStatus = action === 'START' ? 'ACTIVE' : 'STOPPED';
+
+            // Step 1: Immediately update local state with optimistic UI update (toggle switches immediately)
+            setCampaignsData(prevData => ({
+                ...prevData,
+                data: prevData.data.map(campaign =>
+                    campaign.campaign_id === campaignId
+                        ? { ...campaign, status: updatedNewStatus }
+                        : campaign
+                )
+            }));
+
+            // Step 2: Build URL and cache key for refresh
             const startDate = formatDate(dateRange[0].startDate);
             const endDate = formatDate(dateRange[0].endDate);
             const ts = `&_=${Date.now()}`;
@@ -988,7 +1031,7 @@ const CampaignsComponent = (props, ref) => {
 
             const cacheKey = `cache:GET:${url}`;
 
-            // Step 2: Clear cache asynchronously
+            // Step 3: Clear cache asynchronously
             await new Promise((resolve) => {
                 const keysToRemove = [];
                 for (let i = 0; i < localStorage.length; i++) {
@@ -1001,7 +1044,7 @@ const CampaignsComponent = (props, ref) => {
                 resolve();
             });
 
-            // Step 3: Fetch fresh data
+            // Step 4: Fetch fresh data
             const freshResponse = await fetch(url, {
                 headers: {
                     "Content-Type": "application/json",
@@ -1020,6 +1063,15 @@ const CampaignsComponent = (props, ref) => {
 
             // Show success message
             handleSnackbarOpen(data.message || "Campaign status updated successfully!", "success");
+
+            // Step 5: Handle warning if present in response
+            if (data.warning && data.warning.message) {
+                // Show warning message after a short delay so it doesn't get hidden by success message
+                setTimeout(() => {
+                    const warningMessage = `⚠️ ${data.warning.message}\n\n💡 ${data.warning.recommendation || ''}`.trim();
+                    handleSnackbarOpen(warningMessage, "warning");
+                }, 1500);
+            }
 
             // Remove loading state for this specific campaign
             setUpdatingCampaigns(prev => ({ ...prev, [campaignId]: false }));
