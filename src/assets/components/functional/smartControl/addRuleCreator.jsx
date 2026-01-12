@@ -57,7 +57,7 @@ const normalizeFilters = (filters) => {
             operation_name: ruleData.operation_name || "",
             operation_type: ruleData.operation_type || "",
             description: ruleData.description || "",
-            limit_value: ruleData.limit_value || "",
+            
             spends: extractFilterValue(ruleData.filters, "spends"),
             sales: extractFilterValue(ruleData.filters, "sales"),
             roas: extractFilterValue(ruleData.filters, "roas"),
@@ -65,23 +65,27 @@ const normalizeFilters = (filters) => {
             impression: extractFilterValue(ruleData.filters, "impression"),
             clicks: extractFilterValue(ruleData.filters, "clicks"),
             cvr: extractFilterValue(ruleData.filters, "cvr"),
-            acos: extractFilterValue(ruleData.filters, "acos"),
+            
         };
-        const getUpdateRuleUrl = () => {
-    if (platform === "Zepto") {
-        return `https://react-api-script.onrender.com/pidilite/update-rule?rule_id=${ruleData.rule_id}&platform=${operator}`;
-    } else if (platform === "Blinkit") {
-        return `http://react-api-script.onrender.com/pidilite/update-rule?platform=${operator}&rule_id=${ruleData.rule_id}`;
-    }
-    return "";
-};
 
         const accessToken = localStorage.getItem("accessToken");
-        console.log(payload, "aman")
-        try {
-        const updateRuleUrl = getUpdateRuleUrl();
+        
+        // Get platform and rule_id from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const platform = urlParams.get("operator") || ruleData?.platform;
+        const rule_id = ruleData?.rule_id;
 
-        const response = await fetch(updateRuleUrl, {
+        if (!rule_id || !platform) {
+            alert("Missing rule ID or platform information");
+            return;
+        }
+
+        // Build URL for update-rule API
+        const updateRuleUrl = `https://react-api-script.onrender.com/pidilite/update-rule?rule_id=${rule_id}&platform=${platform}`;
+
+        console.log(payload, "payload");
+        try {
+            const response = await fetch(updateRuleUrl, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -94,7 +98,7 @@ const normalizeFilters = (filters) => {
 
             if (response.ok) {
                 alert("Rule updated successfully!");
-                getRulesData()
+                getRulesData();
                 setShowRuleModal(false);
             } else {
                 console.error("Update failed:", data);
