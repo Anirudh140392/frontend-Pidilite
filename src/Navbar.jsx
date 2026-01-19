@@ -18,6 +18,7 @@ import authContext from "./store/auth/authContext";
 import axios from "axios";
 import { cachedAxiosGet } from "./services/cachedAxios";
 import { getCache } from "./services/cacheUtils";
+import WatchTowerIcon from "./assets/icons/navbar/watchTower";
 
 const RedirectLink = ({ url, label, pathName, onClick }) => {
     return (
@@ -76,19 +77,26 @@ const RedirectLink = ({ url, label, pathName, onClick }) => {
                     iconHeight="15"
                     iconColor={pathName === url ? "#fff" : "#78a8df"}
                 />
-            ) : label === "History" ? (
-                <HistoryIcon
-                    iconClass="me-2"
-                    iconWidth="15"
-                    iconHeight="15"
-                    iconColor={pathName === url ? "#fff" : "#78a8df"}
-                />
-            ) : (
-                ""
-            )}
-            {label}
-        </Link>
-    );
+            ): label === "History" ? (
+        <HistoryIcon
+          iconClass="me-2"
+          iconWidth="15"
+          iconHeight="15"
+          iconColor={pathName === url ? "#fff" : "#78a8df"}
+        />
+      ) : label === "Watch Tower" ? (
+        <WatchTowerIcon
+          iconClass="me-2"
+          iconWidth="15"
+          iconHeight="15"
+          iconColor={pathName === url ? "#fff" : "#78a8df"}
+        />
+      ) : (
+        ""
+      )}
+      {label}
+    </Link>
+  );
 };
 
 const Navbar = () => {
@@ -372,7 +380,30 @@ const Navbar = () => {
                 </div>
                 <div className="redirection-navbar-con">
                     <Accordion className="navbar-accordion">
-                        <Accordion.Item eventKey="0">
+                     <Accordion.Item eventKey="1">
+              <Accordion.Header>Control Tower</Accordion.Header>
+              <Accordion.Body>
+                {["Amazon","Zepto","BigBasket","Blinkit","Swiggy"].includes(operatorName) && (
+                  <RedirectLink
+                    url={`/watch-tower${operatorTypeParams === ""
+                        ? `?operator=${OPERATOR.AMAZON}`
+                        : operatorTypeParams
+                      }`}
+                    label="Watch Tower"
+                    pathName={pathName}
+                    onClick={() =>
+                      setPathName(
+                        `/watch-tower${operatorTypeParams === ""
+                          ? `?operator=${OPERATOR.AMAZON}`
+                          : operatorTypeParams
+                        }`
+                      )
+                    }
+                  />
+                )}
+              </Accordion.Body>
+            </Accordion.Item>
+                        <Accordion.Item eventKey="1">
                             <Accordion.Header>Activation</Accordion.Header>
                             <Accordion.Body>
                                 {["Blinkit","Amazon","Zepto","Swiggy","BigBasket"].includes(operatorName) && (
@@ -485,6 +516,7 @@ const Navbar = () => {
                                 )}
                             </Accordion.Body>
                         </Accordion.Item>
+                        
                     </Accordion>
                 </div>
             </div>

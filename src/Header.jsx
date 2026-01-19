@@ -18,13 +18,13 @@ const Header = () => {
 
   // Brand account combinations
   const accountCombinations = [
-   { "brand": "Quench Botanics"},
-        { "brand": "pidilite Cosmetics"},
-         { "brand": "pidilite POP"}
+    { "brand": "Quench Botanics" },
+    { "brand": "pidilite Cosmetics" },
+    { "brand": "pidilite POP" }
   ];
 
   // Available operators - Flipkart, Zepto, and Blinkit
-  const availableOperators = ["Swiggy","Blinkit","Zepto"];
+  const availableOperators = ["Swiggy", "Blinkit", "Zepto"];
 
   // Get unique brands for dropdown
   const uniqueBrands = React.useMemo(() => {
@@ -70,7 +70,7 @@ const Header = () => {
   const handleBrandChange = (event) => {
     const brandValue = event.target.value;
     setSelectedBrand(brandValue);
-    
+
     const newSearchParams = new URLSearchParams(searchParams);
     if (brandValue) {
       newSearchParams.set('brand', brandValue);
@@ -84,7 +84,7 @@ const Header = () => {
   useEffect(() => {
     const operator = searchParams.get("operator");
     const brand = searchParams.get("brand");
-    
+
     if (operator) {
       setShowSelectedOperator(operator);
     }
@@ -101,7 +101,7 @@ const Header = () => {
       location.pathname === "/campaigns" ||
       location.pathname === "/keywords" ||
       location.pathname === "/products";
-    
+
     return isZeptoOperator && isValidPage;
   };
 
@@ -150,25 +150,27 @@ const Header = () => {
           </div>
         </div>
         <div className="d-flex actions-con">
-          {/* Operator Dropdown */}
-          <Dropdown className="operator-selected-tab">
-            <Dropdown.Toggle variant="white" id="dropdown-basic">
-              {showSelectedOperator || "Select Platform"}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {availableOperators.map((operator) => (
-                <OperatorList
-                  key={operator}
-                  showSelectedOperator={showSelectedOperator}
-                  setShowSelectedOperator={setShowSelectedOperator}
-                  selectedOperator={operator}
-                />
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+          {/* Operator Dropdown - hide on Watch Tower page */}
+          {location.pathname !== "/watch-tower" && (
+            <Dropdown className="operator-selected-tab">
+              <Dropdown.Toggle variant="white" id="dropdown-basic">
+                {showSelectedOperator || "Select Platform"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {availableOperators.map((operator) => (
+                  <OperatorList
+                    key={operator}
+                    showSelectedOperator={showSelectedOperator}
+                    setShowSelectedOperator={setShowSelectedOperator}
+                    selectedOperator={operator}
+                  />
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
 
           {/* Brand Dropdown - only show when operator is Zepto and on specific pages */}
-         
+
 
           {/* Client Select */}
           <SelectFieldComponent

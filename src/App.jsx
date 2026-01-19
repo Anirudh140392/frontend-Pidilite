@@ -13,6 +13,8 @@ import ProductAnalyticsComponent from "./assets/pages/productAnalytics";
 import SearchTermInsights from "./assets/pages/searchTermInsights";
 import VisibilityDashboard from "./assets/pages/visibility";
 
+import WatchTowerData from "./assets/components/functional/WatchTower/WatchTowerData";
+
 
 
 function App() {
@@ -39,6 +41,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/keyword-analysis" element={isLoggedIn ? <SearchTermInsights /> : <Navigate to="/login" />} />
           <Route path="/product-analytics" element={isLoggedIn ? <ProductAnalyticsComponent /> : <Navigate to="/login" />} />
+                    <Route path="/watch-tower" element={isLoggedIn ? <WatchTowerData /> : <Navigate to="/login" />} />
 
           <Route path="/rules" element={isLoggedIn ? <SmartControl /> : <Navigate to="/login" />} />
           <Route path="/negative-keywords" element={isLoggedIn ? <NegativeKeywordsComponent /> : <Navigate to="/login" />} />
