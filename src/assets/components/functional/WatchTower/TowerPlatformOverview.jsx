@@ -1,52 +1,23 @@
-import { useState, useEffect } from "react";
-import { Card, Container, Button, Spinner, Alert } from "react-bootstrap";
+import { useMemo } from "react";
+import { Card, Container, Button, Alert } from "react-bootstrap";
 import {
   BsGrid3X3GapFill,
   BsSearch,
   BsInfoCircle,
   BsCalendar,
 } from "react-icons/bs";
-import { fetchWatchTowerData } from "../../../../services/WatchTowerService";
 import {
   formatCurrency,
   formatPercentage,
   formatLargeNumber,
   formatROAS,
-  getChangeColorClass,
   formatUnits,
 } from "../../../../utils/formatters";
 
-const TowerPlatformOverview = ({ dateRange, formatDate }) => {
-  const [apiData, setApiData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Use dateRange from props (header calendar)
-        const startDate = formatDate(dateRange[0].startDate);
-        const endDate = formatDate(dateRange[0].endDate);
-
-        const data = await fetchWatchTowerData(startDate, endDate);
-        setApiData(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load platform data');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dateRange, formatDate]);
+const TowerPlatformOverview = ({ dateRange, formatDate, apiData, loading, error }) => {
 
   // Transform API data to platform format
-  const transformPlatformData = () => {
-    if (!apiData?.overview_metrics) return [];
-
+  const platforms = useMemo(() => {
     const platformConfigs = [
       {
         key: "all",
@@ -75,12 +46,19 @@ const TowerPlatformOverview = ({ dateRange, formatDate }) => {
     ];
 
     return platformConfigs.map((config) => {
-      const platformData = apiData.overview_metrics[config.apiKey];
+      // If loading or no data, provide structure for skeleton
+      const platformData = apiData?.overview_metrics?.[config.apiKey];
 
       if (!platformData) {
         return {
           ...config,
-          columns: [],
+          columns: [
+            { title: "Offtake", value: null, change: null },
+            { title: "Impressions", value: null, change: null },
+            { title: "Orders", value: null, change: null },
+            { title: "Ad Spends", value: null, change: null },
+            { title: "ROAS", value: null, change: null },
+          ],
         };
       }
 
@@ -138,67 +116,75 @@ const TowerPlatformOverview = ({ dateRange, formatDate }) => {
         ],
       };
     });
-  };
+  }, [apiData]);
 
-  const platforms = transformPlatformData();
-
+  // SmallCard Component with Skeleton Logic
   const SmallCard = ({ item }) => {
-    const { title, value, change, meta } = item;
-    const hasValue = value !== null && value !== undefined && value !== "N/A";
+    const { value, change, meta } = item;
+
+    // Explicitly check for loading OR check if value exists
+    // If we're global loading, we definitely show skeleton
+    // If not loading, but value is null, we show "No Data"
+    const showSkeleton = loading;
 
     return (
       <Card className="mb-3" style={{ borderRadius: 12, height: 69.5 }}>
         <Card.Body style={{ padding: "0.9rem" }}>
           <div className="fw-bold" style={{ fontSize: "1.05rem" }}>
-            {hasValue ? (
-              value
+            {showSkeleton ? (
+              <div className="placeholder-glow">
+                <span className="placeholder col-7"></span>
+              </div>
             ) : (
-              <span className="text-secondary small">No Data Available</span>
+              value !== null ? value : <span className="text-secondary small">No Data</span>
             )}
           </div>
-          {hasValue && change && change.text && change.text !== "N/A" && (
-            <div className="small mt-1">
-              <span
-                className={
-                  change.positive
-                    ? "text-success"
-                    : "text-danger"
-                }
-              >
-                {change.text}
-              </span>
-            </div>
-          )}
+
+          <div className="small mt-1 d-flex justify-content-between align-items-center">
+            {showSkeleton ? (
+              <div className="placeholder-glow w-100">
+                <span className="placeholder col-4"></span>
+              </div>
+            ) : (
+              <>
+                {change && change.text && change.text !== "N/A" && (
+                  <span
+                    className={
+                      change.positive
+                        ? "text-success fw-semibold"
+                        : "text-danger fw-semibold"
+                    }
+                  >
+                    {change.text}
+                  </span>
+                )}
+                {meta?.units && (
+                  <span className="text-muted ms-2" style={{ fontSize: '0.8rem' }}>
+                    # {meta.units}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
         </Card.Body>
       </Card>
     );
   };
 
-  if (loading) {
-    return (
-      <Container fluid className="py-2">
-        <Card className="border-0 shadow-lg rounded-4 p-4 bg-white text-center">
-          <Spinner animation="border" role="status" variant="primary">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          <p className="mt-3 text-muted">Loading platform data...</p>
-        </Card>
-      </Container>
-    );
-  }
-
   if (error) {
-    return (
-      <Container fluid className="py-2">
-        <Alert variant="danger" className="rounded-4">
-          {error}
-        </Alert>
-      </Container>
-    );
+    // Optional: Render error logic if desired, or let parent handle it.
+    // For now, we show a banner but keep structure.
   }
 
   return (
     <Container fluid className="py-2">
+      {error && (
+        <Alert variant="danger" className="mb-3 rounded-4 shadow-sm">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {error}
+        </Alert>
+      )}
+
       <Card
         className="border-0 shadow-lg rounded-4 p-3 bg-white"
         style={{

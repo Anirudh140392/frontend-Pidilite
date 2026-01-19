@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Table, Card, Container, Dropdown, Spinner, Alert } from "react-bootstrap";
 import { BsTable } from "react-icons/bs";
-import { fetchWatchTowerData } from "../../../../services/WatchTowerService";
 import {
   formatCurrency,
   formatPercentage,
@@ -9,32 +8,7 @@ import {
   formatROAS,
 } from "../../../../utils/formatters";
 
-const TowerByCategory = ({ dateRange, formatDate }) => {
-  const [apiData, setApiData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Use dateRange from props (header calendar)
-        const startDate = formatDate(dateRange[0].startDate);
-        const endDate = formatDate(dateRange[0].endDate);
-
-        const data = await fetchWatchTowerData(startDate, endDate);
-        setApiData(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load category data');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dateRange, formatDate]);
+const TowerByCategory = ({ dateRange, formatDate, apiData, loading, error }) => {
 
   // Transform API data to categories format
   const transformCategories = () => {

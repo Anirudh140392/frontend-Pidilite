@@ -1,98 +1,83 @@
-import { useState, useEffect } from "react";
-import { Card, Container, Spinner, Alert } from "react-bootstrap";
+import { useMemo } from "react";
+import { Card, Container, Alert } from "react-bootstrap";
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { fetchWatchTowerData } from "../../../../services/WatchTowerService";
 import {
   formatCurrency,
-  formatChangeWithValue,
+  formatPercentage,
   formatLargeNumber,
   formatROAS,
-  formatPercentage,
   transformGraphData,
   getChangeColorClass,
   formatUnits,
 } from "../../../../utils/formatters";
 
-const TowerForAll = ({ dateRange, formatDate }) => {
-  const [apiData, setApiData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const TowerForAll = ({ dateRange, formatDate, apiData, loading, error }) => {
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Use dateRange from props (header calendar)
-        const startDate = formatDate(dateRange[0].startDate);
-        const endDate = formatDate(dateRange[0].endDate);
+  // Transform API data to cards format OR provide default structure for loading
+  const cards = useMemo(() => {
+    // If we have data, map it
+    if (apiData?.overview_metrics?.All) {
+      return [
+        {
+          title: "Offtake",
+          value: formatCurrency(apiData.overview_metrics.All.Offtake),
+          sub: "for MTD",
+          change: formatPercentage(apiData.overview_metrics.All.Offtake_change),
+          changeColor: getChangeColorClass(apiData.overview_metrics.All.Offtake_change),
+          prevText: "vs Previous Month",
+          extra: `#Units: ${formatUnits(apiData.overview_metrics.All.Offtake_units)}`,
+          extraChange: formatPercentage(apiData.overview_metrics.All.Offtake_change),
+          extraChangeColor: getChangeColorClass(apiData.overview_metrics.All.Offtake_change),
+          chartData: transformGraphData(apiData.overview_metrics.All.Offtake_graph),
+        },
+        {
+          title: "Ad Spends",
+          value: formatCurrency(apiData.overview_metrics.All.Ad_Spends),
+          sub: "for MTD",
+          change: formatPercentage(apiData.overview_metrics.All.Ad_Spends_change),
+          changeColor: getChangeColorClass(apiData.overview_metrics.All.Ad_Spends_change),
+          prevText: "vs Previous Month",
+          chartData: transformGraphData(apiData.overview_metrics.All.Ad_Spends_graph),
+        },
+        {
+          title: "ROAS",
+          value: formatROAS(apiData.overview_metrics.All.ROAS),
+          sub: "for MTD (Avg.)",
+          change: formatPercentage(apiData.overview_metrics.All.ROAS_change),
+          changeColor: getChangeColorClass(apiData.overview_metrics.All.ROAS_change),
+          prevText: "vs Previous Month",
+          chartData: transformGraphData(apiData.overview_metrics.All.ROAS_graph),
+        },
+        {
+          title: "Impressions",
+          value: formatLargeNumber(apiData.overview_metrics.All.Impressions * 1000000),
+          sub: "for MTD",
+          change: formatPercentage(apiData.overview_metrics.All.Impressions_change),
+          changeColor: getChangeColorClass(apiData.overview_metrics.All.Impressions_change),
+          prevText: "vs Previous Month",
+          chartData: transformGraphData(apiData.overview_metrics.All.Impressions_graph),
+        },
+        {
+          title: "Orders",
+          value: formatLargeNumber(apiData.overview_metrics.All.Orders * 1000),
+          sub: "for MTD",
+          change: formatPercentage(apiData.overview_metrics.All.Orders_change),
+          changeColor: getChangeColorClass(apiData.overview_metrics.All.Orders_change),
+          prevText: "vs Previous Month",
+          chartData: transformGraphData(apiData.overview_metrics.All.Orders_graph),
+        },
+      ];
+    }
 
-        const data = await fetchWatchTowerData(startDate, endDate);
-        setApiData(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load Watch Tower data. Please try again later.');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dateRange, formatDate]);
-
-  // Transform API data to cards format
-  const cards = apiData?.overview_metrics?.All
-    ? [
-      {
-        title: "Offtake",
-        value: formatCurrency(apiData.overview_metrics.All.Offtake),
-        sub: "for MTD",
-        change: formatPercentage(apiData.overview_metrics.All.Offtake_change),
-        changeColor: getChangeColorClass(apiData.overview_metrics.All.Offtake_change),
-        prevText: "vs Previous Month",
-        extra: `#Units: ${formatUnits(apiData.overview_metrics.All.Offtake_units)}`,
-        extraChange: formatPercentage(apiData.overview_metrics.All.Offtake_change),
-        extraChangeColor: getChangeColorClass(apiData.overview_metrics.All.Offtake_change),
-        chartData: transformGraphData(apiData.overview_metrics.All.Offtake_graph),
-      },
-      {
-        title: "Ad Spends",
-        value: formatCurrency(apiData.overview_metrics.All.Ad_Spends),
-        sub: "for MTD",
-        change: formatPercentage(apiData.overview_metrics.All.Ad_Spends_change),
-        changeColor: getChangeColorClass(apiData.overview_metrics.All.Ad_Spends_change),
-        prevText: "vs Previous Month",
-        chartData: transformGraphData(apiData.overview_metrics.All.Ad_Spends_graph),
-      },
-      {
-        title: "ROAS",
-        value: formatROAS(apiData.overview_metrics.All.ROAS),
-        sub: "for MTD (Avg.)",
-        change: formatPercentage(apiData.overview_metrics.All.ROAS_change),
-        changeColor: getChangeColorClass(apiData.overview_metrics.All.ROAS_change),
-        prevText: "vs Previous Month",
-        chartData: transformGraphData(apiData.overview_metrics.All.ROAS_graph),
-      },
-      {
-        title: "Impressions",
-        value: formatLargeNumber(apiData.overview_metrics.All.Impressions * 1000000),
-        sub: "for MTD",
-        change: formatPercentage(apiData.overview_metrics.All.Impressions_change),
-        changeColor: getChangeColorClass(apiData.overview_metrics.All.Impressions_change),
-        prevText: "vs Previous Month",
-        chartData: transformGraphData(apiData.overview_metrics.All.Impressions_graph),
-      },
-      {
-        title: "Orders",
-        value: formatLargeNumber(apiData.overview_metrics.All.Orders * 1000),
-        sub: "for MTD",
-        change: formatPercentage(apiData.overview_metrics.All.Orders_change),
-        changeColor: getChangeColorClass(apiData.overview_metrics.All.Orders_change),
-        prevText: "vs Previous Month",
-        chartData: transformGraphData(apiData.overview_metrics.All.Orders_graph),
-      },
-    ]
-    : [];
+    // Default structure with null values for loading state
+    return [
+      { title: "Offtake", value: null, sub: "for MTD", prevText: "vs Previous Month" },
+      { title: "Ad Spends", value: null, sub: "for MTD", prevText: "vs Previous Month" },
+      { title: "ROAS", value: null, sub: "for MTD (Avg.)", prevText: "vs Previous Month" },
+      { title: "Impressions", value: null, sub: "for MTD", prevText: "vs Previous Month" },
+      { title: "Orders", value: null, sub: "for MTD", prevText: "vs Previous Month" },
+    ];
+  }, [apiData]);
 
   const isProfit = (changeText) => {
     if (!changeText) return true;
@@ -101,32 +86,19 @@ const TowerForAll = ({ dateRange, formatDate }) => {
 
   const scrollNeeded = cards.length > 5;
 
-  if (loading) {
-    return (
-      <Container fluid className="py-4">
-        <Card className="border-0 shadow-lg rounded-4 p-4 bg-white text-center">
-          <Spinner animation="border" role="status" variant="primary">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          <p className="mt-3 text-muted">Loading Watch Tower data...</p>
-        </Card>
-      </Container>
-    );
-  }
-
   if (error) {
-    return (
-      <Container fluid className="py-4">
-        <Alert variant="danger" className="rounded-4">
-          <Alert.Heading>Error Loading Data</Alert.Heading>
-          <p>{error}</p>
-        </Alert>
-      </Container>
-    );
+    // Optional log
   }
 
   return (
     <Container fluid className="py-4">
+      {error && (
+        <Alert variant="danger" className="mb-3 rounded-4 shadow-sm">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {error}
+        </Alert>
+      )}
+
       <Card className="border-0 shadow-lg rounded-4 p-4 bg-white">
         {/* ===== Header ===== */}
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -159,6 +131,7 @@ const TowerForAll = ({ dateRange, formatDate }) => {
           {cards.map((card, index) => {
             const profit = isProfit(card.change);
             const lineColor = profit ? "#28a745" : "#dc3545";
+            const showSkeleton = loading;
 
             return (
               <Card
@@ -176,17 +149,33 @@ const TowerForAll = ({ dateRange, formatDate }) => {
                     {card.title}
                   </Card.Title>
 
-                  <h4 className="fw-semibold mb-0 text-dark">
-                    {card.value}{" "}
-                    <span className="fs-6 text-muted fw-normal">
-                      {card.sub}
-                    </span>
-                  </h4>
+                  <div className="mb-0 text-dark">
+                    {showSkeleton ? (
+                      <div className="placeholder-glow">
+                        <h4 className="placeholder col-8"></h4>
+                      </div>
+                    ) : (
+                      <h4 className="fw-semibold mb-0">
+                        {card.value}{" "}
+                        <span className="fs-6 text-muted fw-normal">
+                          {card.sub}
+                        </span>
+                      </h4>
+                    )}
+                  </div>
 
-                  <p className={`small mt-2 mb-1 ${card.changeColor}`}>
-                    {card.change}{" "}
-                    <span className="text-muted">{card.prevText}</span>
-                  </p>
+                  <div className={`small mt-2 mb-1 ${card.changeColor}`}>
+                    {showSkeleton ? (
+                      <div className="placeholder-glow">
+                        <span className="placeholder col-6"></span>
+                      </div>
+                    ) : (
+                      <>
+                        {card.change}{" "}
+                        <span className="text-muted">{card.prevText}</span>
+                      </>
+                    )}
+                  </div>
 
                   {card.extra && (
                     <p className="small mb-2 text-secondary">
@@ -199,26 +188,30 @@ const TowerForAll = ({ dateRange, formatDate }) => {
 
                   {/* Mini Line Chart */}
                   <div style={{ height: 80 }} className="mt-2">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={card.chartData}>
-                        <XAxis dataKey="name" hide />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "#fff",
-                            border: "1px solid #ddd",
-                            fontSize: "12px",
-                          }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke={lineColor}
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          activeDot={{ r: 5 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {showSkeleton ? (
+                      <div style={{ height: '100%', background: '#f8f9fa', borderRadius: 8 }}></div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={card.chartData}>
+                          <XAxis dataKey="name" hide />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#fff",
+                              border: "1px solid #ddd",
+                              fontSize: "12px",
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke={lineColor}
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 5 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </Card.Body>
               </Card>
