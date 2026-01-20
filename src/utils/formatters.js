@@ -1,11 +1,11 @@
 /**
- * Format number to currency with Cr (Crore) suffix
+ * Format number to currency with L (Lakh) suffix
  * @param {number} value - Numeric value
  * @returns {string} Formatted currency string
  */
 export const formatCurrency = (value) => {
-    if (value === null || value === undefined || value === 0) return '₹0 Cr';
-    return `₹${value.toFixed(2)} Cr`;
+    if (value === null || value === undefined || value === 0) return '₹0 L';
+    return `₹${value.toFixed(2)} L`;
 };
 
 /**
