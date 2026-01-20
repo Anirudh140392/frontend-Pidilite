@@ -54,7 +54,7 @@ const OverviewState = (props) => {
         const endDate = formatDate(dateRange[0].endDate);
 
         try {
-            let url = `${host}/pidilite/${endpoint}?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
+            let url = `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
             // Only add brand_name parameter if a specific brand is selected (not empty string)
             if (selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
@@ -153,7 +153,7 @@ const OverviewState = (props) => {
         const endDate = formatDate(dateRange[0].endDate);
         const ts = forceRefresh ? `&_=${Date.now()}` : "";
 
-        let url = `${host}/pidilite/home?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
+        let url = `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
         // Only add brand_name parameter if a specific brand is selected (not empty string)
         if (selectedBrand && selectedBrand.trim() !== "") {
             url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
