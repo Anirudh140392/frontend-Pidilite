@@ -3,7 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const AddEditGoal = ({ show, onClose, onSubmit, initialData = null }) => {
+const AddEditGoal = ({ show, onClose, onSubmit, initialData = null, operator }) => {
   const [goalName, setGoalName] = useState("");
   const [dataLevel, setDataLevel] = useState("");
   const [dataValue, setDataValue] = useState("");
@@ -19,13 +19,21 @@ const AddEditGoal = ({ show, onClose, onSubmit, initialData = null }) => {
   const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
+    if (!operator) return;
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No access token found");
+      return;
+    }
+
     axios.get(
-      "https://react-api-script.onrender.com/rules_engine/metadata/campaigns/?brand_id=3&page=1&page_size=50&platform=flipkart",
+      `https://react-api-script.onrender.com/rules_engine/metadata/campaigns/?brand_id=3&page=1&page_size=50&platform=${operator}`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
       .then(res => setCampaignList(res?.data?.campaigns?.data || []))
       .catch(err => console.error("Campaign API error", err));
-  }, [token]);
+  }, [operator]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -66,6 +74,12 @@ const AddEditGoal = ({ show, onClose, onSubmit, initialData = null }) => {
     };
 
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
+
       await axios.post(
         `https://react-api-script.onrender.com/goalsengine/goals/create?platform=${operator}&brand=Pidilite`,
         payload,

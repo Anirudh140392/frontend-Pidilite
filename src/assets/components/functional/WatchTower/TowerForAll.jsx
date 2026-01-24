@@ -25,9 +25,6 @@ const TowerForAll = ({ dateRange, formatDate, apiData, loading, error }) => {
           change: formatPercentage(apiData.overview_metrics.All.Offtake_change),
           changeColor: getChangeColorClass(apiData.overview_metrics.All.Offtake_change),
           prevText: "vs Previous Month",
-          extra: `#Units: ${formatUnits(apiData.overview_metrics.All.Offtake_units)}`,
-          extraChange: formatPercentage(apiData.overview_metrics.All.Offtake_change),
-          extraChangeColor: getChangeColorClass(apiData.overview_metrics.All.Offtake_change),
           chartData: transformGraphData(apiData.overview_metrics.All.Offtake_graph),
         },
         {
@@ -177,14 +174,7 @@ const TowerForAll = ({ dateRange, formatDate, apiData, loading, error }) => {
                     )}
                   </div>
 
-                  {card.extra && (
-                    <p className="small mb-2 text-secondary">
-                      {card.extra}{" "}
-                      <span className={card.extraChangeColor}>
-                        {card.extraChange}
-                      </span>
-                    </p>
-                  )}
+
 
                   {/* Mini Line Chart */}
                   <div style={{ height: 80 }} className="mt-2">

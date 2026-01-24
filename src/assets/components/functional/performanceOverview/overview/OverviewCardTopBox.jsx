@@ -35,19 +35,19 @@ const OverviewCardTopBox = ({ overViewData }) => {
   const [showInsightsPanel, setShowInsightsPanel] = useState(false);
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(false);
-  
+
   const dataContext = useContext(overviewContext);
   const { dateRange, formatDate } = dataContext || {};
   const [searchParams] = useSearchParams();
   const operator = searchParams.get("operator");
-  
+
   const metrics = overViewData?.metrics_data || {};
 
   // Fetch daily data from API
   useEffect(() => {
     const fetchDailyData = async () => {
       if (!operator || !dateRange || !dateRange[0]) return;
-      
+
       setLoading(true);
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -60,7 +60,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
         const startDate = formatDate(dateRange[0].startDate);
         const endDate = formatDate(dateRange[0].endDate);
         const host = "https://react-api-script.onrender.com";
-        
+
         const response = await fetch(
           `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}`,
           {
@@ -78,14 +78,14 @@ const OverviewCardTopBox = ({ overViewData }) => {
 
         const data = await response.json();
         console.log("API Response:", data);
-        
+
         // Transform API response to daily chart data
         const transformedData = {};
 
         // Map datewise_metrics to chart format
         if (data?.datewise_metrics) {
           const metrics = data.datewise_metrics;
-          
+
           // Map impressions
           transformedData.impressions = (metrics.impressions || []).map((item) => ({
             name: dayjs(item.date).format("MMM DD"),
@@ -223,7 +223,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
             {loading && <span className="badge bg-warning text-dark ms-2">Loading...</span>}
           </div>
 
-        
+
         </div>
 
         {/* Metrics Cards Row */}
@@ -279,9 +279,12 @@ const OverviewCardTopBox = ({ overViewData }) => {
                       <LineChart data={card.chartData}>
                         <XAxis
                           dataKey="name"
-                          tick={{ fontSize: 10 }}
+                          tick={{ fontSize: 8, angle: -20, dy: 5 }}
                           tickLine={false}
                           axisLine={false}
+                          height={40}
+                          interval={0}
+                          padding={{ left: 10, right: 10 }}
                         />
                         <YAxis hide />
                         <Tooltip
@@ -315,6 +318,19 @@ const OverviewCardTopBox = ({ overViewData }) => {
                         />
                       </LineChart>
                     </ResponsiveContainer>
+                  ) : loading ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "100%",
+                      }}
+                    >
+                      <div className="spinner-border spinner-border-sm" role="status" style={{ color: card.color }}>
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
                   ) : (
                     <div
                       style={{

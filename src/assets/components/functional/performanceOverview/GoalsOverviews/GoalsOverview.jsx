@@ -27,14 +27,14 @@ const GoalsOverview = () => {
 
     const fetchGoalsData = async () => {
         if (!operator) return;
-        
+
         setLoading(true);
         setError(null);
         try {
             const token = localStorage.getItem("accessToken");
             const url = `https://react-api-script.onrender.com/goalsengine/goals/list?platform=${operator}&brand=Pidilite`;
             console.log("Fetching from URL:", url);
-            
+
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
@@ -202,7 +202,10 @@ const GoalsOverview = () => {
                     <AddEditGoal
                         show={showAddGoal}
                         onClose={() => setShowAddGoal(false)}
-                        onSubmit={(data) => console.log("Goal Submitted:", data)}
+                        onSubmit={() => {
+                            fetchGoalsData();
+                        }}
+                        operator={operator}
                     />
 
                     <Button

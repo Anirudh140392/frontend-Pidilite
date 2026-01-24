@@ -158,11 +158,6 @@ const TowerPlatformOverview = ({ dateRange, formatDate, apiData, loading, error 
                     {change.text}
                   </span>
                 )}
-                {meta?.units && (
-                  <span className="text-muted ms-2" style={{ fontSize: '0.8rem' }}>
-                    # {meta.units}
-                  </span>
-                )}
               </>
             )}
           </div>
@@ -206,16 +201,6 @@ const TowerPlatformOverview = ({ dateRange, formatDate, apiData, loading, error 
             </div>
           </div>
           <div className="d-flex align-items-center gap-2">
-            <div
-              className="d-flex align-items-center px-2 py-1 rounded text-muted small"
-              style={{
-                backgroundColor: "#f8f3f0",
-                border: "1px solid #e3dad6",
-                fontWeight: 500,
-              }}
-            >
-              <BsCalendar className="me-1" /> Stale Data
-            </div>
             <div
               className="d-flex align-items-center bg-light rounded-pill px-2"
               style={{
