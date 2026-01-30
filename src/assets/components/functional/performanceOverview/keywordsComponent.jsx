@@ -32,9 +32,9 @@ const KeywordsComponent = () => {
 
     // Brand account combinations
     const accountCombinations = [
-        { "brand": "Quench Botanics"},
-        { "brand": "pidilite Cosmetics"},
-         { "brand": "pidilite POP"}
+        { "brand": "Quench Botanics" },
+        { "brand": "pidilite Cosmetics" },
+        { "brand": "pidilite POP" }
     ];
 
     const uniqueBrands = useMemo(() => {
@@ -67,13 +67,13 @@ const KeywordsComponent = () => {
         const ts = forceRefresh ? `&_=${Date.now()}` : "";
 
         let url = `https://react-api-script.onrender.com/pidilite/keywords?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-       if (selectedBrand && selectedBrand.trim() !== "")  {
+        if (selectedBrand && selectedBrand.trim() !== "") {
             url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
         }
         const cacheKey = `cache:GET:${url}`;
 
         if (forceRefresh) {
-            try { localStorage.removeItem(cacheKey); } catch (_) {}
+            try { localStorage.removeItem(cacheKey); } catch (_) { }
         } else {
             const cached = getCache(cacheKey);
             if (cached) {
@@ -100,7 +100,7 @@ const KeywordsComponent = () => {
             const data = await response.json();
             setKeywordsData(data);
             if (forceRefresh) {
-                try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+                try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) { }
             }
         } catch (error) {
             if (error.name === "AbortError") {
@@ -194,11 +194,11 @@ const KeywordsComponent = () => {
                         row.match_type === updatedKeywordType) {
                         return { ...row, bid: newBid };
                     }
-                     if (operator === "Swiggy" &&
+                    if (operator === "Swiggy" &&
                         row.campaign_id === campaignId &&
-                        row.keyword_name === updatedKeyword &&
+                        row.keyword === updatedKeyword &&
                         row.match_type === updatedKeywordType) {
-                        return { ...row, bid: newBid };
+                        return { ...row, bid_api: newBid };
                     }
                     return row;
                 }),
@@ -217,7 +217,7 @@ const KeywordsComponent = () => {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
             const cacheKey = `cache:GET:${url}`;
-            
+
             // Update cached data
             const cachedData = getCache(cacheKey);
             if (cachedData && cachedData.data) {
@@ -236,11 +236,11 @@ const KeywordsComponent = () => {
                             row.match_type === updatedKeywordType) {
                             return { ...row, bid: newBid };
                         }
-                         if (operator === "Swiggy" &&
+                        if (operator === "Swiggy" &&
                             row.campaign_id === campaignId &&
-                            row.keyword_name === updatedKeyword &&
+                            row.keyword === updatedKeyword &&
                             row.match_type === updatedKeywordType) {
-                            return { ...row, bid: newBid };
+                            return { ...row, bid_api: newBid };
                         }
                         return row;
                     }),
@@ -301,14 +301,14 @@ const KeywordsComponent = () => {
             renderCell: (params) => {
                 const keywordDisplay = getKeywordDisplay(params.row.keyword);
                 const isClickable = keywordDisplay !== "N/A";
-                
+
                 return (
-                    <div 
+                    <div
                         className={isClickable ? "text-icon-div cursor-pointer" : "text-icon-div"}
                         onClick={isClickable ? () => handleKeywordClick(params.row.keyword, params.row.campaign_id) : undefined}
                     >
-                        <Typography 
-                            className={isClickable ? "redirect" : ""} 
+                        <Typography
+                            className={isClickable ? "redirect" : ""}
                             variant="body2"
                             sx={{ color: isClickable ? 'inherit' : 'text.secondary' }}
                         >
@@ -318,10 +318,10 @@ const KeywordsComponent = () => {
                 );
             },
         },
-        { 
+        {
             field: "keyword_type",
-            headerName: "MATCH TYPE", 
-            minWidth: 150, 
+            headerName: "MATCH TYPE",
+            minWidth: 150,
             headerAlign: "left",
             renderCell: (params) => {
                 const matchType = params.row.keyword_type;
@@ -335,7 +335,7 @@ const KeywordsComponent = () => {
             renderCell: (params) => {
                 const keyword = params.row.keyword;
                 const keywordType = params.row.keyword_type;
-                
+
                 if (!keyword || keyword === 0 || keyword === "0") {
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
@@ -358,8 +358,8 @@ const KeywordsComponent = () => {
                         onSnackbarOpen={handleSnackbarOpen}
                     />
                 );
-            }, 
-            type: "number", 
+            },
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -369,8 +369,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.impressions} percentValue={params.row.impressions_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -380,8 +380,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -391,8 +391,8 @@ const KeywordsComponent = () => {
             minWidth: 170,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.spend} percentValue={params.row.spend_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -402,8 +402,8 @@ const KeywordsComponent = () => {
             minWidth: 170,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.orders} percentValue={params.row.orders_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -413,8 +413,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.sales} percentValue={params.row.sales_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -424,8 +424,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.roas} percentValue={params.row.roas_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -435,8 +435,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.total_atc} percentValue={params.row.total_atc_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -455,14 +455,14 @@ const KeywordsComponent = () => {
             renderCell: (params) => {
                 const keywordDisplay = getKeywordDisplay(params.row.keyword_name);
                 const isClickable = keywordDisplay !== "N/A";
-                
+
                 return (
-                    <div 
+                    <div
                         className={isClickable ? "text-icon-div cursor-pointer" : "text-icon-div"}
                         onClick={isClickable ? () => handleKeywordClick(params.row.keyword, params.row.campaign_id) : undefined}
                     >
-                        <Typography 
-                            className={isClickable ? "redirect" : ""} 
+                        <Typography
+                            className={isClickable ? "redirect" : ""}
                             variant="body2"
                             sx={{ color: isClickable ? 'inherit' : 'text.secondary' }}
                         >
@@ -472,10 +472,10 @@ const KeywordsComponent = () => {
                 );
             },
         },
-        { 
+        {
             field: "match_type",
-            headerName: "MATCH TYPE", 
-            minWidth: 150, 
+            headerName: "MATCH TYPE",
+            minWidth: 150,
             headerAlign: "left",
             renderCell: (params) => {
                 const matchType = params.row.match_type;
@@ -513,8 +513,8 @@ const KeywordsComponent = () => {
                         onSnackbarOpen={handleSnackbarOpen}
                     />
                 );
-            }, 
-            type: "number", 
+            },
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -524,8 +524,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.impressions} percentValue={params.row.impressions_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -535,8 +535,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -546,8 +546,8 @@ const KeywordsComponent = () => {
             minWidth: 170,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.spend} percentValue={params.row.spend_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -557,8 +557,8 @@ const KeywordsComponent = () => {
             minWidth: 170,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.orders} percentValue={params.row.orders_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -568,8 +568,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.revenue} percentValue={params.row.revenue_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -579,8 +579,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.roas} percentValue={params.row.roas_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -590,8 +590,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.aov} percentValue={params.row.aov_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -601,8 +601,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.ctr} percentValue={params.row.ctr_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -612,8 +612,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cvr} percentValue={params.row.cvr_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -623,8 +623,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cpm} percentValue={params.row.cpm_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -634,8 +634,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -646,7 +646,7 @@ const KeywordsComponent = () => {
         },
     ];
 
-     const KeywordsColumnSwiggy = [
+    const KeywordsColumnSwiggy = [
         {
             field: "keyword",
             headerName: "TARGET",
@@ -654,14 +654,14 @@ const KeywordsComponent = () => {
             renderCell: (params) => {
                 const keywordDisplay = getKeywordDisplay(params.row.keyword);
                 const isClickable = keywordDisplay !== "N/A";
-                
+
                 return (
-                    <div 
+                    <div
                         className={isClickable ? "text-icon-div cursor-pointer" : "text-icon-div"}
                         onClick={isClickable ? () => handleKeywordClick(params.row.keyword, params.row.campaign_id) : undefined}
                     >
-                        <Typography 
-                            className={isClickable ? "redirect" : ""} 
+                        <Typography
+                            className={isClickable ? "redirect" : ""}
                             variant="body2"
                             sx={{ color: isClickable ? 'inherit' : 'text.secondary' }}
                         >
@@ -671,10 +671,10 @@ const KeywordsComponent = () => {
                 );
             },
         },
-        { 
+        {
             field: "match_type",
-            headerName: "MATCH TYPE", 
-            minWidth: 150, 
+            headerName: "MATCH TYPE",
+            minWidth: 150,
             headerAlign: "left",
             renderCell: (params) => {
                 const matchType = params.row.match_type;
@@ -693,7 +693,7 @@ const KeywordsComponent = () => {
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                {params.row.bid_api ? params.row.bid_api.toFixed(2) : "N/A"}
+                                {params.row.bid_api ? Number(params.row.bid_api).toFixed(2) : "N/A"}
                             </Typography>
                         </Box>
                     );
@@ -701,7 +701,7 @@ const KeywordsComponent = () => {
 
                 return (
                     <BidCell
-                        value={params.row.bid_api}
+                        value={Number(params.row.bid_api)}
                         campaignId={params.row.campaign_id}
                         campaignType={params.row.campaign_type}
                         keyword={keyword}
@@ -712,8 +712,8 @@ const KeywordsComponent = () => {
                         onSnackbarOpen={handleSnackbarOpen}
                     />
                 );
-            }, 
-            type: "number", 
+            },
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -723,8 +723,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.impressions} percentValue={params.row.impressions_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -734,8 +734,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -745,8 +745,8 @@ const KeywordsComponent = () => {
             minWidth: 170,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.spend} percentValue={params.row.spend_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -756,8 +756,8 @@ const KeywordsComponent = () => {
             minWidth: 170,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.orders} percentValue={params.row.orders_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -767,8 +767,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.revenue} percentValue={params.row.revenue_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -778,8 +778,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.roas} percentValue={params.row.roas_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -789,8 +789,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.aov} percentValue={params.row.aov_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -800,8 +800,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.ctr} percentValue={params.row.ctr_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -811,8 +811,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cvr} percentValue={params.row.cvr_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -822,8 +822,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cpm} percentValue={params.row.cpm_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -833,8 +833,8 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
-            ), 
-            type: "number", 
+            ),
+            type: "number",
             align: "left",
             headerAlign: "left",
         },
@@ -861,12 +861,12 @@ const KeywordsComponent = () => {
             const token = localStorage.getItem("accessToken");
             const startDate = formatDate(dateRange[0].startDate);
             const endDate = formatDate(dateRange[0].endDate);
-            
+
             let url = `https://react-api-script.onrender.com/pidilite/keyword_graph?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}&platform=${operator}&campaign_id=${campaignId}&keyword=${keywordName}`;
             if (selectedBrand) {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
-            
+
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
@@ -919,11 +919,11 @@ const KeywordsComponent = () => {
                 ad_group_id: adGroupId,
                 campaign_id: campaignId
             });
-            
+
             if (selectedBrand) {
                 params.append('brand_name', selectedBrand);
             }
-            
+
             const response = await fetch(`https://react-api-script.onrender.com/pidilite/toggle_keyword_or_target_state?${params.toString()}`, {
                 method: "PUT",
                 headers: {

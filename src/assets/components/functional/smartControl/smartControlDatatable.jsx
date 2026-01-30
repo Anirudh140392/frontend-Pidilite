@@ -3,12 +3,17 @@ import MuiDataTableComponent from "../../common/muidatatableComponent";
 import overviewContext from "../../../../store/overview/overviewContext";
 import { useSearchParams, useNavigate } from "react-router";
 import EditRuleModal from "./modal/editRuleModal";
+import NewRuleModal from "./modal/newRuleModal";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Snackbar } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import UploadRulesModal from "./modal/UploadRulesModal";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { Tooltip, Snackbar, Box, Button } from "@mui/material";
 import { Alert } from "react-bootstrap";
 import {
   Dialog,
@@ -16,29 +21,124 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Button
 } from "@mui/material";
 
-const SmartControlDatatable = () => {
+// Cache configuration
+const CACHE_KEY_PREFIX = 'rules_cache_';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-  const [showEditRuleModal, setShowEditRuleModal] = useState(false)
+// Cache utility functions
+const getCacheKey = (operator) => `${CACHE_KEY_PREFIX}${operator}`;
+
+const getCachedData = (operator) => {
+  try {
+    const cacheKey = getCacheKey(operator);
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    const now = Date.now();
+
+    // Check if cache is still valid
+    if (now - timestamp < CACHE_DURATION) {
+      return data;
+    }
+
+    // Cache expired, remove it
+    sessionStorage.removeItem(cacheKey);
+    return null;
+  } catch (error) {
+    console.error('Error reading cache:', error);
+    return null;
+  }
+};
+
+const setCachedData = (operator, data) => {
+  try {
+    const cacheKey = getCacheKey(operator);
+    const cacheObject = {
+      data,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem(cacheKey, JSON.stringify(cacheObject));
+  } catch (error) {
+    console.error('Error setting cache:', error);
+  }
+};
+
+const clearCache = (operator) => {
+  try {
+    const cacheKey = getCacheKey(operator);
+    sessionStorage.removeItem(cacheKey);
+  } catch (error) {
+    console.error('Error clearing cache:', error);
+  }
+};
+
+const SmartControlDatatable = () => {
+  const [showEditRuleModal, setShowEditRuleModal] = useState(false);
+  const [showAddRuleModal, setShowAddRuleModal] = useState(false);
   const [selectedRule, setSelectedRule] = useState(null);
-  const [rulesData, setRulesData] = useState(null)
+  const [rulesData, setRulesData] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [isLoading, setIsLoading] = useState(false);
   const [updatingRuleId, setUpdatingRuleId] = useState(null);
   const [deletingRuleId, setDeletingRuleId] = useState(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState(null);
+  const [isFromCache, setIsFromCache] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
-  const { campaignSetter } = useContext(overviewContext)
+
+  const { campaignSetter } = useContext(overviewContext);
 
   const [searchParams] = useSearchParams();
   const operator = searchParams.get("operator");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const getRulesData = async () => {
+  const abortControllerRef = useRef(null);
+
+  const handleUploadFile = async (formData) => {
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      const response = await fetch(
+        "https://react-api-script.onrender.com/pidilite/import-rules-excel",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      handleSnackbarOpen("Excel uploaded successfully!", "success");
+      getRulesData(true);
+
+    } catch (error) {
+      handleSnackbarOpen("Failed to upload Excel", "error");
+    }
+  };
+
+  const getRulesData = async (forceRefresh = true) => {
     if (!operator) return;
+
+    // Try to get cached data first (unless force refresh)
+    if (!forceRefresh) {
+      const cachedData = getCachedData(operator);
+      if (cachedData) {
+        setRulesData(cachedData);
+        setIsFromCache(true);
+        console.log('Loaded rules from cache');
+        return;
+      }
+    }
 
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -48,6 +148,8 @@ const SmartControlDatatable = () => {
     abortControllerRef.current = controller;
 
     setIsLoading(true);
+    setIsFromCache(false);
+
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No access token found");
@@ -56,14 +158,19 @@ const SmartControlDatatable = () => {
     }
 
     try {
-      const response = await fetch(`https://react-api-script.onrender.com/pidilite/displayrules?platform=${operator}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        signal: controller.signal
-      });
+      const response = await fetch(
+        `https://react-api-script.onrender.com/pidilite/displayrules?platform=${operator}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal
+        }
+      );
+
+
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -71,11 +178,17 @@ const SmartControlDatatable = () => {
 
       const data = await response.json();
       setRulesData(data);
+
+      // Cache the fetched data
+      setCachedData(operator, data);
+      console.log('Fetched fresh rules data and cached it');
+
     } catch (error) {
       if (error.name === "AbortError") {
         console.log("Previous request aborted due to operator change.");
       } else {
-        console.error("Failed to fetch keywords data:", error.message);
+        console.error("Failed to fetch rules data:", error.message);
+        handleSnackbarOpen("Failed to fetch rules data", "error");
       }
     } finally {
       setIsLoading(false);
@@ -83,29 +196,22 @@ const SmartControlDatatable = () => {
   };
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      getRulesData();
-    }, 100);
+    getRulesData();
+    // const timeout = setTimeout(() => {
+    // }, 100);
 
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      clearTimeout(timeout);
-    }
+    // return () => {
+    //   if (abortControllerRef.current) {
+    //     abortControllerRef.current.abort();
+    //   }
+    //   clearTimeout(timeout);
+    // }
   }, [operator]);
 
-  const abortControllerRef = useRef(null);
-
-  const STATUS_OPTIONS = [
-    { value: 'Active', label: 'Active' },
-    { value: 'In-Active', label: 'In-Active' }
-  ]
-
   const onCampaignClick = (value) => {
-    campaignSetter(value)
-    navigate(`/?operator=${operator}&tab=keywords`)
-  }
+    campaignSetter(value);
+    navigate(`/?operator=${operator}&tab=keywords`);
+  };
 
   const handleOpenConfirmDialog = (rule) => {
     setRuleToDelete(rule);
@@ -117,97 +223,134 @@ const SmartControlDatatable = () => {
     setOpenConfirmDialog(false);
   };
 
+  const handleRefresh = () => {
+    clearCache(operator);
+    getRulesData(true);
+    handleSnackbarOpen("Refreshing rules data...", "info");
+  };
+
+  const withTooltip = (params) => (
+    <Tooltip title={params.row?.description || ""} arrow placement="top">
+      <span
+        style={{
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          display: "block",
+          width: "100%",
+          cursor: "pointer"
+        }}
+      >
+        {params.value}
+      </span>
+    </Tooltip>
+  );
+
   const SmartControlColumn = useMemo(() => [
-    {
-      field: 'id', headerName: '#ID', minWidth: 100, type: "number", align: "left",
-      headerAlign: "left",
-    },
-    {
-      field: 'name',
-      headerName: 'NAME',
-      minWidth: 300,
-      renderCell: (params) => (
-        <span
-          className="text-icon-div cursor-pointer redirect"
-          onClick={() => onCampaignClick(params.row.name)}
-        >
-          {params.row.name}
-        </span>
-      )
-    },
-    { field: 'module', headerName: 'MODULE', minWidth: 150 },
-    { field: 'type', headerName: 'TYPE', minWidth: 150 },
-    {
-      field: 'frequency_type', headerName: 'SCHEDULE', minWidth: 150, type: "number", align: "left",
-      headerAlign: "left",
-    },
+    { field: 'rule_id', headerName: '#ID', minWidth: 100, type: "number", renderCell: withTooltip },
+    { field: 'rule_name', headerName: 'RULE NAME', minWidth: 220, renderCell: withTooltip },
+    { field: 'platform_name', headerName: 'PLATFORM', minWidth: 130, renderCell: withTooltip },
+    { field: 'frequency', headerName: 'FREQUENCY TIME', minWidth: 150, renderCell: withTooltip },
+    { field: 'frequency_type', headerName: 'FREQUENCY TYPE', minWidth: 160, renderCell: withTooltip },
+
     {
       field: 'status',
       headerName: 'STATUS',
-      minWidth: 150,
-      type: 'singleSelect',
-      valueOptions: [
-        { value: 1, label: 'Active' },
-        { value: 0, label: 'In-Active' }
-      ],
+      minWidth: 120,
       renderCell: (params) => (
-        <span>{params.value === 1 ? 'Active' : 'In-Active'}</span>
-      ),
+        <Tooltip title={params.value === 1 ? 'Active' : 'Inactive'} arrow>
+          <span>{params.value === 1 ? 'Active' : 'Inactive'}</span>
+        </Tooltip>
+      )
     },
     {
       field: 'action',
       headerName: 'ACTION',
       minWidth: 250,
+      sortable: false,
       renderCell: (params) => (
-        <span className="flex items-center gap-2">
-          {updatingRuleId === params.row.rule_id ? (
-            <div className="w-5 h-5">
+        <span
+          className="flex items-center gap-2"
+          style={{ minWidth: "160px", display: "flex", justifyContent: "flex-start" }}
+        >
+          {/* Play / Pause */}
+          <span style={{ width: "28px", display: "flex", justifyContent: "center" }}>
+            {updatingRuleId === params.row.rule_id ? (
               <CircularProgress size={18} />
-            </div>
-          ) : (
-            <span
-              className="cursor-pointer"
-              onClick={() => toggleRuleStatus(params.row.rule_id, params.row.status)}
-            >
-              {params.row.status === 1 ? <PauseIcon /> : <PlayArrowIcon />}
-            </span>
-          )}
-          <span
-            className="cursor-pointer"
-            onClick={() => {
-              if (!params.row?.type) return;
-              setSelectedRule(params.row);
-              setShowEditRuleModal(true);
-            }}
-          >
-            <EditIcon />
+            ) : (
+              <span
+                className="cursor-pointer"
+                onClick={() =>
+                  toggleRuleStatus(params.row.rule_id, params.row.status)
+                }
+              >
+                {params.row.status === 1 ? <PauseIcon /> : <PlayArrowIcon />}
+              </span>
+            )}
           </span>
-          {deletingRuleId === params.row.id ? (
-            <CircularProgress size={18} />
-          ) : (
+
+          {/* Edit */}
+          <span style={{ width: "28px", display: "flex", justifyContent: "center" }}>
             <span
               className="cursor-pointer"
-              onClick={() => handleOpenConfirmDialog(params.row)}
+              onClick={() => {
+                if (!params.row?.type) return;
+                setSelectedRule(params.row);
+                setShowEditRuleModal(true);
+              }}
             >
-              <DeleteIcon />
+              <EditIcon />
             </span>
-          )}
+          </span>
+
+          {/* Delete */}
+          <span style={{ width: "28px", display: "flex", justifyContent: "center" }}>
+            {deletingRuleId === params.row.rule_id ? (
+              <CircularProgress size={18} />
+            ) : (
+              <span
+                className="cursor-pointer"
+                onClick={() => handleOpenConfirmDialog(params.row)}
+              >
+                <DeleteIcon />
+              </span>
+            )}
+          </span>
         </span>
       ),
-      sortable: false,
     },
-  ], [])
 
-  const SmartControlData = rulesData?.data.map((item) => ({
-    ...item,
-    id: item.id,
-    name: item.rule_name,
-    module: "Campaigns",
-    type: item.type,
-    schedule: item.frequency,
-    status: item.status,
-    rule_id: item.rule_id
-  }))
+    { field: 'pf_id', headerName: 'PF ID', minWidth: 100, renderCell: withTooltip },
+    { field: 'user_id', headerName: 'USER ID', minWidth: 120, renderCell: withTooltip },
+    { field: 'user_name', headerName: 'USER NAME', minWidth: 150, renderCell: withTooltip },
+
+    { field: 'brand_id', headerName: 'BRAND ID', minWidth: 120, renderCell: withTooltip },
+    { field: 'brand_name', headerName: 'BRAND NAME', minWidth: 150, renderCell: withTooltip },
+    { field: 'sub_brand_id', headerName: 'SUB BRAND ID', minWidth: 140, renderCell: withTooltip },
+    { field: 'sub_brand_name', headerName: 'SUB BRAND NAME', minWidth: 180, renderCell: withTooltip },
+
+    { field: 'description', headerName: 'DESCRIPTION', minWidth: 250, renderCell: withTooltip },
+    { field: 'targets', headerName: 'TARGETS', minWidth: 250, renderCell: withTooltip },
+    { field: 'campaigns', headerName: 'CAMPAIGNS', minWidth: 250, renderCell: withTooltip },
+  ], [updatingRuleId, deletingRuleId]);
+
+
+
+
+  const SmartControlData = Array.isArray(rulesData?.data)
+    ? rulesData.data.map((item) => ({
+      ...item,
+      id: item.id,
+      name: item.rule_name,
+      module: "Campaigns",
+      type: item.type,
+      schedule: item.frequency,
+      status: item.status,
+      rule_id: item.rule_id
+    }))
+    : [];
+
+
 
   const toggleRuleStatus = async (ruleId, currentStatus) => {
     const token = localStorage.getItem("accessToken");
@@ -216,49 +359,74 @@ const SmartControlDatatable = () => {
     setUpdatingRuleId(ruleId);
 
     try {
-      const response = await fetch(`https://react-api-script.onrender.com/pidilite/play-pause-rule?rule_id=${ruleId}&platform=${operator}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `https://react-api-script.onrender.com/rules_engine/rules/${ruleId}/toggle-status/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          }
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
 
       const result = await response.json();
+      // result.new_status → the latest status
 
-      setRulesData((prevData) => ({
-        ...prevData,
-        data: prevData.data.map(rule =>
-          rule.rule_id === ruleId ? { ...rule, status: result.new_status } : rule
-        )
-      }));
+      setRulesData(prevData => {
+        if (!prevData?.data) return prevData;
+
+        const updatedData = {
+          ...prevData,
+          data: prevData.data.map(rule =>
+            rule.rule_id === ruleId
+              ? { ...rule, status: result.new_status }
+              : rule
+          )
+        };
+
+        setCachedData(operator, updatedData);
+        return updatedData;
+      });
+
+
+      handleSnackbarOpen(result.message || "Rule status updated", "success");
 
     } catch (error) {
       console.error("Failed to update rule status:", error.message);
+      handleSnackbarOpen("Failed to update rule status", "error");
     } finally {
       setUpdatingRuleId(null);
     }
   };
 
+
   const deleteRule = async (ruleId, status) => {
-    if (status !== 0) return;
+    if (status !== 0) {
+      handleSnackbarOpen("Only inactive rules can be deleted", "warning");
+      return;
+    }
+
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
     setDeletingRuleId(ruleId);
 
     try {
-      const response = await fetch(`https://react-api-script.onrender.com/pidilite/delete-rule?rule_id=${ruleId}&platform=${"Amazon"}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `https://react-api-script.onrender.com/rules_engine/rules/${ruleId}/delete/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          }
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -266,13 +434,24 @@ const SmartControlDatatable = () => {
 
       const result = await response.json();
 
-      setRulesData((prevData) => ({
-        ...prevData,
-        data: prevData.data.filter(rule => rule.rule_id !== ruleId)
-      }));
+      setRulesData((prevData) => {
+        if (!prevData || !Array.isArray(prevData.data)) return prevData; // ⭐ STOP collapsing
+
+        const updatedData = {
+          ...prevData,
+          data: prevData.data.filter(rule => rule.rule_id !== ruleId)
+        };
+
+        // Update cache after deletion
+        setCachedData(operator, updatedData);
+        return updatedData;
+      });
+
+      handleSnackbarOpen("Rule deleted successfully", "success");
 
     } catch (error) {
       console.error("Failed to delete rule:", error.message);
+      handleSnackbarOpen("Failed to delete rule", "error");
     } finally {
       setDeletingRuleId(null);
     }
@@ -287,6 +466,7 @@ const SmartControlDatatable = () => {
   };
 
   return (
+
     <React.Fragment>
       <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog}>
         <DialogTitle>Confirm Deletion</DialogTitle>
@@ -311,22 +491,102 @@ const SmartControlDatatable = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <EditRuleModal getRulesData={getRulesData} showEditRuleModal={showEditRuleModal}
-        setShowEditRuleModal={setShowEditRuleModal} editRuleData={selectedRule} />
+
+      <EditRuleModal
+        getRulesData={getRulesData}
+        showEditRuleModal={showEditRuleModal}
+        setShowEditRuleModal={setShowEditRuleModal}
+        editRuleData={selectedRule}
+        operator={operator}
+      />
+
+      <NewRuleModal
+        showRuleModal={showAddRuleModal}
+        setShowRuleModal={setShowAddRuleModal}
+        getRulesData={getRulesData}
+        operator={operator}
+      />
+
+      {/* Action buttons */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 2 }}>
+        <Tooltip title={isFromCache ? "Data loaded from cache. Click to refresh" : "Refresh data"}>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={handleRefresh}
+            disabled={isLoading}
+            sx={{
+              borderColor: '#1976d2',
+              color: '#1976d2',
+
+            }}
+          >
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </Tooltip>
+
+        <Button
+          variant="outlined"
+          startIcon={<UploadFileIcon />}
+          onClick={() => setShowUploadModal(true)}
+          sx={{
+            borderColor: "#4caf50",
+            color: "#4caf50",
+            "&:hover": { borderColor: "#43a047", backgroundColor: "#e8f5e9" }
+          }}
+        >
+          Import Rules
+        </Button>
+
+
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setShowAddRuleModal(true)}
+          sx={{
+            backgroundColor: '#1976d2',
+            '&:hover': {
+              backgroundColor: '#1565c0'
+            }
+          }}
+        >
+          Add Rule
+        </Button>
+      </Box>
+
       <div className="datatable-con">
         <MuiDataTableComponent
           isLoading={isLoading}
           columns={SmartControlColumn}
-          data={SmartControlData} />
+          data={SmartControlData}
+          dynamicKey='keyword'
+          getRowId={(row) => row.rule_id}
+        />
       </div>
-      <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        open={snackbar.open} autoHideDuration={4000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} variant="filled" sx={{ width: "100%" }}>
+
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <UploadRulesModal
+        open={showUploadModal}
+        setOpen={setShowUploadModal}
+        onUpload={handleUploadFile}
+      />
+
     </React.Fragment>
-  )
-}
+  );
+};
 
 export default SmartControlDatatable;
