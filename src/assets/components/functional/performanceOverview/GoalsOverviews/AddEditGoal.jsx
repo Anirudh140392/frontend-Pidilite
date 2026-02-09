@@ -59,8 +59,8 @@ const AddEditGoal = ({ show, onClose, onSubmit, initialData = null, operator }) 
     if (!validateForm()) return;
 
     const payload = {
-      platform: "Flipkart",
-      brand: "Samsonite",
+      platform: operator,
+      brand: "Pidilite",
       goal_name: goalName,
       data_level: dataLevel.toUpperCase(),
       data_operator: "EQUALS",
