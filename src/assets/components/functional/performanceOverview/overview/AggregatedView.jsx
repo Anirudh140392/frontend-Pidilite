@@ -17,7 +17,7 @@ import { cachedFetch } from "../../../../../services/cachedFetch";
 
 const HEADERS = [
   { key: "tag", label: "Tag" },
-  { key: "marketShare", label: "MarketShare" },
+  
   { key: "spends", label: "Spends" },
   { key: "spendShare", label: "Spend % Share" },
   { key: "sales", label: "Sales" },
@@ -60,7 +60,7 @@ const AggregatedView = () => {
 
       return {
         tag: item.tag || "",
-        marketShare: 0, // Not provided in API
+        // Not provided in API
         spends: item.spends || 0,
         spendsChange: item.spends_pct_change || 0,
         spendShare: spendSharePercent,
