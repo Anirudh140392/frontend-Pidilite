@@ -23,7 +23,7 @@ import overviewContext from "../../../../../store/overview/overviewContext";
 
 const number = (n) => (n ?? 0).toLocaleString("en-IN");
 const toThousands = (n) => (n / 1000).toFixed(1) + "K";
-const toMillions = (n) => (n / 1000000).toFixed(2) + "M";
+const toLakhs = (n) => (n / 100000).toFixed(2) + "L";
 
 function roasColor(roas) {
   if (roas >= 4) return "#059669";
@@ -151,7 +151,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
     {
       title: "Impressions",
       value: metrics.Impressions,
-      formatted: toMillions(metrics.Impressions || 0),
+      formatted: toLakhs(metrics.Impressions || 0),
       sub: "Total Impressions",
       icon: <Eye size={20} />,
       color: "#0284c7",
@@ -181,7 +181,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
     {
       title: "Total Spends",
       value: metrics.Spend,
-      formatted: `₹${toMillions(metrics.Spend || 0)}`,
+      formatted: `₹${toLakhs(metrics.Spend || 0)}`,
       sub: "Ad Spend",
       icon: <IndianRupee size={20} />,
       color: "#d97706",
@@ -299,7 +299,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
                               card.title === "Impressions" ||
                               card.title === "Total Spends"
                             ) {
-                              return toMillions(value);
+                              return toLakhs(value);
                             } else if (card.title === "Orders") {
                               return toThousands(value);
                             } else if (card.title === "ROAS") {

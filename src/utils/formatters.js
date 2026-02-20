@@ -26,7 +26,7 @@ export const formatPercentage = (value) => {
  * @param {string} unit - Unit (Cr, lac, K, etc.)
  * @returns {string} Formatted change string
  */
-export const formatChangeWithValue = (changePercent, changeValue, unit = 'lac') => {
+export const formatChangeWithValue = (changePercent, changeValue, unit = 'L') => {
     if (changePercent === null || changePercent === undefined) return '-';
     const arrow = changePercent >= 0 ? '▲' : '▼';
     const absChange = Math.abs(changeValue || changePercent);
@@ -34,15 +34,15 @@ export const formatChangeWithValue = (changePercent, changeValue, unit = 'lac') 
 };
 
 /**
- * Format large numbers with K/M suffix
+ * Format large numbers with K/L (Lakh) suffix
  * @param {number} value - Numeric value
  * @returns {string} Formatted number string
  */
 export const formatLargeNumber = (value) => {
     if (value === null || value === undefined || value === 0) return '0';
 
-    if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(1)}M`;
+    if (value >= 100000) {
+        return `${(value / 100000).toFixed(2)}L`;
     } else if (value >= 1000) {
         return `${(value / 1000).toFixed(1)}K`;
     }
@@ -92,7 +92,7 @@ export const formatUnits = (value) => {
     if (value === null || value === undefined || value === 0) return '0';
 
     if (value >= 100000) {
-        return `${(value / 100000).toFixed(2)} lac`;
+        return `${(value / 100000).toFixed(2)} L`;
     } else if (value >= 1000) {
         return `${(value / 1000).toFixed(1)}K`;
     }

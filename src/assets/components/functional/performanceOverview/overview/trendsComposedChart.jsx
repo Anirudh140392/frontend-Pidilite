@@ -16,7 +16,7 @@ const TrendsComposedChart = ({ data, dates, bids, metric1, metric2 }) => {
 
     const formatNumber = (num) => {
         if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + "B";
-        if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+        if (num >= 100_000) return (num / 100_000).toFixed(1) + "L";
         if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
         return num;
     };

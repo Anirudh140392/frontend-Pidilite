@@ -53,7 +53,7 @@ const TowerPlatformOverview = ({ dateRange, formatDate, apiData, loading, error 
         return {
           ...config,
           columns: [
-            { title: "Offtake", value: null, change: null },
+            { title: "Ad Revenue", value: null, change: null },
             { title: "Impressions", value: null, change: null },
             { title: "Orders", value: null, change: null },
             { title: "Ad Spends", value: null, change: null },
@@ -66,7 +66,7 @@ const TowerPlatformOverview = ({ dateRange, formatDate, apiData, loading, error 
         ...config,
         columns: [
           {
-            title: "Offtake",
+            title: "Ad Revenue",
             value: formatCurrency(platformData.Offtake),
             change: {
               text: formatPercentage(platformData.Offtake_change),
