@@ -93,7 +93,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
           }));
 
           // Map CPM
-          transformedData.cpm = (metrics.cpm || []).map((item) => ({
+          transformedData.cpc = (metrics.cpc || []).map((item) => ({
             name: dayjs(item.date).format("MMM DD"),
             value: typeof item.value === 'number' ? item.value : 0,
           }));
@@ -124,7 +124,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
         // Set empty chart data on error
         setChartData({
           impressions: [],
-          cpm: [],
+          cpc: [],
           orders: [],
           spends: [],
           roas: [],
@@ -159,14 +159,14 @@ const OverviewCardTopBox = ({ overViewData }) => {
       chartData: chartData.impressions || [],
     },
     {
-      title: "CPM",
-      value: metrics.avg_cpm,
-      formatted: `₹${(metrics.avg_cpm || 0).toFixed(2)}`,
-      sub: "Average CPM",
+      title: "CPC",
+      value: metrics.avg_cpc,
+      formatted: `₹${(metrics.avg_cpc || 0).toFixed(2)}`,
+      sub: "Average CPC",
       icon: <TrendingUp size={20} />,
       color: "#9333ea",
       bgColor: "#f5f3ff",
-      chartData: chartData.cpm || [],
+      chartData: chartData.cpc || [],
     },
     {
       title: "Orders",

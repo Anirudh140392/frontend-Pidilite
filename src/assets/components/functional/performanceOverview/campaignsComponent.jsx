@@ -231,6 +231,15 @@ const CampaignsComponent = (props, ref) => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
+         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
+            ), type: "number", align: "left",
+            headerAlign: "left",
+        },
         {
             field: "spend",
             headerName: "SPENDS",
@@ -428,6 +437,16 @@ const CampaignsComponent = (props, ref) => {
             headerAlign: "left",
         },
         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
+            ), type: "number", align: "left",
+            headerAlign: "left",
+        },
+
+        {
             field: "spend",
             headerName: "SPENDS",
             minWidth: 170,
@@ -610,6 +629,15 @@ const CampaignsComponent = (props, ref) => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
+            ), type: "number", align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
             ), type: "number", align: "left",
             headerAlign: "left",
         },

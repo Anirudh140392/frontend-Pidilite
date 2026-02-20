@@ -222,6 +222,15 @@ const ProductsComponent = () => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
+          {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_diff} />
+            ), type: "number", align: "left",
+            headerAlign: "left",
+        },
         {
             field: "direct_units_sold",
             headerName: "DIRECT ORDERS",
@@ -295,6 +304,15 @@ const ProductsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
+            ), type: "number", align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
             ), type: "number", align: "left",
             headerAlign: "left",
         },
@@ -434,6 +452,15 @@ const ProductsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <NewPercentageDataComponent firstValue={params.row.ecpm} secValue={params.row.ecpm_change} />
+            ), type: "number", align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "ecpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <NewPercentageDataComponent firstValue={params.row.ecpc} secValue={params.row.ecpc_change} />
             ), type: "number", align: "left",
             headerAlign: "left",
         },

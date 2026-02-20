@@ -11,7 +11,6 @@ import { Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material
 import { cachedFetch } from "../../../../services/cachedFetch";
 import { getCache } from "../../../../services/cacheUtils";
 import NewPercentageDataComponent from "../../common/newPercentageDataComponent";
-
 const KeywordsComponent = () => {
 
     const { dateRange, getBrandsData, brands, formatDate, campaignName } = useContext(overviewContext)
@@ -367,9 +366,7 @@ const KeywordsComponent = () => {
             field: "impressions",
             headerName: "IMPRESSIONS",
             minWidth: 150,
-            renderCell: (params) => (
-                <ColumnPercentageDataComponent mainValue={params.row.impressions} percentValue={params.row.impressions_change} />
-            ),
+           
             type: "number",
             align: "left",
             headerAlign: "left",
@@ -380,6 +377,17 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
+            ),
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
             ),
             type: "number",
             align: "left",
@@ -522,8 +530,17 @@ const KeywordsComponent = () => {
             field: "impressions",
             headerName: "IMPRESSIONS",
             minWidth: 150,
+           
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
             renderCell: (params) => (
-                <ColumnPercentageDataComponent mainValue={params.row.impressions} percentValue={params.row.impressions_change} />
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
             ),
             type: "number",
             align: "left",
@@ -540,6 +557,7 @@ const KeywordsComponent = () => {
             align: "left",
             headerAlign: "left",
         },
+       
         {
             field: "spend",
             headerName: "SPENDS",
@@ -628,17 +646,7 @@ const KeywordsComponent = () => {
             align: "left",
             headerAlign: "left",
         },
-        {
-            field: "cpc",
-            headerName: "CPC",
-            minWidth: 150,
-            renderCell: (params) => (
-                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
-            ),
-            type: "number",
-            align: "left",
-            headerAlign: "left",
-        },
+       
         {
             field: "campaign_name",
             headerName: "CAMPAIGN",
@@ -721,9 +729,7 @@ const KeywordsComponent = () => {
             field: "impressions",
             headerName: "IMPRESSIONS",
             minWidth: 150,
-            renderCell: (params) => (
-                <ColumnPercentageDataComponent mainValue={params.row.impressions} percentValue={params.row.impressions_change} />
-            ),
+           
             type: "number",
             align: "left",
             headerAlign: "left",
@@ -734,6 +740,17 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.clicks} percentValue={params.row.clicks_change} />
+            ),
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "cpc",
+            headerName: "CPC",
+            minWidth: 150,
+            renderCell: (params) => (
+                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
             ),
             type: "number",
             align: "left",
