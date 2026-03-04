@@ -128,7 +128,7 @@ const CampaignsComponent = (props, ref) => {
                             console.log(`Cleared ${keysToRemove.length} campaign cache entries`);
                             resolve();
                         });
-                        
+
                         // Optimistically update local state
                         setCampaignsData(prevData => ({
                             ...prevData,
@@ -159,9 +159,9 @@ const CampaignsComponent = (props, ref) => {
 
                         // Fetch fresh data immediately
                         await handleRefresh();
-                        
+
                         // Show success message
-                       
+
                     } catch (error) {
                         console.error("Error during budget update refresh:", error);
                         handleSnackbarOpen("Failed to refresh after budget update", "error");
@@ -231,7 +231,7 @@ const CampaignsComponent = (props, ref) => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -306,7 +306,7 @@ const CampaignsComponent = (props, ref) => {
             renderCell: (params) => (
                 <BudgetCell
                     value={params.row.daily_budget}
-                    campaignId={params.row.campaign_id}
+                    campaignId={params.row.campaign_id || params.id}
                     platform={operator}
                     brand_name={params.row.brand_name}
                     endDate={params.row.end_date || null}
@@ -326,7 +326,7 @@ const CampaignsComponent = (props, ref) => {
                                 console.log(`Cleared ${keysToRemove.length} campaign cache entries`);
                                 resolve();
                             });
-                            
+
                             // Optimistically update local state
                             setCampaignsData(prevData => ({
                                 ...prevData,
@@ -357,9 +357,9 @@ const CampaignsComponent = (props, ref) => {
 
                             // Fetch fresh data immediately
                             await handleRefresh();
-                            
+
                             // Show success message
-                            
+
                         } catch (error) {
                             console.error("Error during budget update refresh:", error);
                             handleSnackbarOpen("Failed to refresh after budget update", "error");
@@ -380,7 +380,7 @@ const CampaignsComponent = (props, ref) => {
             headerAlign: "center",
             renderCell: (params) => {
                 const status = params.row.status;
-                const campaignId = params.row.campaign_id;
+                const campaignId = params.row.campaign_id || params.id;
                 const brandName = params.row.brand_name;
 
                 // Show loading spinner if this campaign is being updated
@@ -493,7 +493,7 @@ const CampaignsComponent = (props, ref) => {
         },
     ];
 
-     const CampaignsColumnSwiggy = [
+    const CampaignsColumnSwiggy = [
         {
             field: "campaign_name",
             headerName: "CAMPAIGN",
@@ -506,12 +506,12 @@ const CampaignsComponent = (props, ref) => {
                 </Box>
             ),
         },
- {
+        {
             field: "api_budget",
             headerName: "BUDGET",
             minWidth: 200,
             renderCell: (params) => <BudgetCell
-                status={params.row.campaign_status}
+                status={params.row.api_status}
                 value={params.row.api_budget}
                 campaignId={params.row.campaign_id}
                 adType={params.row.ad_type}
@@ -534,7 +534,7 @@ const CampaignsComponent = (props, ref) => {
                             console.log(`Cleared ${keysToRemove.length} campaign cache entries`);
                             resolve();
                         });
-                        
+
                         // Optimistically update local state
                         setCampaignsData(prevData => ({
                             ...prevData,
@@ -565,9 +565,9 @@ const CampaignsComponent = (props, ref) => {
 
                         // Fetch fresh data immediately
                         await handleRefresh();
-                        
+
                         // Show success message
-                       
+
                     } catch (error) {
                         console.error("Error during budget update refresh:", error);
                         handleSnackbarOpen("Failed to refresh after budget update", "error");
@@ -578,15 +578,15 @@ const CampaignsComponent = (props, ref) => {
             headerAlign: "left",
             type: "number",
             align: "left",
-        },     
-       {
-            field: "final_status",
+        },
+        {
+            field: "api_status",
             headerName: "STATUS",
             minWidth: 100,
             align: "center",
             headerAlign: "center",
             renderCell: (params) => {
-                const status = params.row.final_status;
+                const status = params.row.api_status;
 
                 if (updatingCampaigns[params.row.campaign_id]) {
                     return (
@@ -606,7 +606,7 @@ const CampaignsComponent = (props, ref) => {
                         onChange={() => handleToggle(
                             params.row.campaign_id,
                             status,
-                            
+
                         )}
                     />
                 );
@@ -632,7 +632,7 @@ const CampaignsComponent = (props, ref) => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -840,8 +840,8 @@ const CampaignsComponent = (props, ref) => {
                 console.warn("Could not re-cache fresh data:", err);
             }
 
-        
-          
+
+
         } catch (error) {
             console.error("Error during refresh:", error);
             handleSnackbarOpen("Failed to refresh data", "error");
@@ -906,7 +906,7 @@ const CampaignsComponent = (props, ref) => {
     const columns = useMemo(() => {
         if (operator === "Blinkit") return CampaignsColumnBlinkit;
         if (operator === "Zepto") return CampaignsColumnZepto;
-         if (operator === "Swiggy") return CampaignsColumnSwiggy;
+        if (operator === "Swiggy") return CampaignsColumnSwiggy;
         return [];
     }, [operator, brands, updatingCampaigns]);
 
@@ -997,7 +997,7 @@ const CampaignsComponent = (props, ref) => {
 
     const confirmStatusChange = async (campaignId, newStatus, adType) => {
         try {
-            
+
             // Set loading state for this campaign
             setUpdatingCampaigns(prev => ({ ...prev, [campaignId]: true }));
 
@@ -1139,17 +1139,17 @@ const CampaignsComponent = (props, ref) => {
                             setUpdatingCampaigns(prev => ({ ...prev, [campaignId]: true }));
                             try {
                                 const token = localStorage.getItem("accessToken");
-                                // Build payload as required - send currentStatus for Zepto instead of the new status
+                                // Build payload as required
                                 const payload = {
                                     campaign_id: campaignId,
-                                    status: currentStatus,
+                                    action: newStatus === "ACTIVE" ? "START" : "PAUSE",
                                     platform: "zepto",
                                     brand_name: brandName
                                 };
 
                                 console.log("Sending Zepto play-pause request:", payload);
 
-                                const response = await fetch("https://react-api-script.onrender.com/pidilite/play-pause", {
+                                const response = await fetch("https://react-api-script.onrender.com/pidilite/play-pause?platform=zepto", {
                                     method: "PUT",
                                     headers: {
                                         "Content-Type": "application/json",

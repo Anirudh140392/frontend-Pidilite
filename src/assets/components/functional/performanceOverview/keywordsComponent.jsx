@@ -366,7 +366,7 @@ const KeywordsComponent = () => {
             field: "impressions",
             headerName: "IMPRESSIONS",
             minWidth: 150,
-           
+
             type: "number",
             align: "left",
             headerAlign: "left",
@@ -382,7 +382,7 @@ const KeywordsComponent = () => {
             align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -530,12 +530,12 @@ const KeywordsComponent = () => {
             field: "impressions",
             headerName: "IMPRESSIONS",
             minWidth: 150,
-           
+
             type: "number",
             align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -557,7 +557,7 @@ const KeywordsComponent = () => {
             align: "left",
             headerAlign: "left",
         },
-       
+
         {
             field: "spend",
             headerName: "SPENDS",
@@ -646,7 +646,7 @@ const KeywordsComponent = () => {
             align: "left",
             headerAlign: "left",
         },
-       
+
         {
             field: "campaign_name",
             headerName: "CAMPAIGN",
@@ -729,7 +729,7 @@ const KeywordsComponent = () => {
             field: "impressions",
             headerName: "IMPRESSIONS",
             minWidth: 150,
-           
+
             type: "number",
             align: "left",
             headerAlign: "left",
@@ -745,7 +745,7 @@ const KeywordsComponent = () => {
             align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -839,17 +839,6 @@ const KeywordsComponent = () => {
             minWidth: 150,
             renderCell: (params) => (
                 <ColumnPercentageDataComponent mainValue={params.row.cpm} percentValue={params.row.cpm_change} />
-            ),
-            type: "number",
-            align: "left",
-            headerAlign: "left",
-        },
-        {
-            field: "cpc",
-            headerName: "CPC",
-            minWidth: 150,
-            renderCell: (params) => (
-                <ColumnPercentageDataComponent mainValue={params.row.cpc} percentValue={params.row.cpc_change} />
             ),
             type: "number",
             align: "left",

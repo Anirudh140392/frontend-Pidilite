@@ -222,7 +222,7 @@ const ProductsComponent = () => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
-          {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -307,7 +307,7 @@ const ProductsComponent = () => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "cpc",
             headerName: "CPC",
             minWidth: 150,
@@ -455,7 +455,7 @@ const ProductsComponent = () => {
             ), type: "number", align: "left",
             headerAlign: "left",
         },
-         {
+        {
             field: "ecpc",
             headerName: "CPC",
             minWidth: 150,
@@ -562,7 +562,7 @@ const ProductsComponent = () => {
     };
 
     const getProductsData = async (forceRefresh = false) => {
-        if (!operator) return;
+        if (!operator || operator === "Swiggy" || operator === "Blinkit") return;
 
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
@@ -586,13 +586,13 @@ const ProductsComponent = () => {
         const ts = forceRefresh ? `&_=${Date.now()}` : "";
 
         let url = `https://react-api-script.onrender.com/pidilite/products?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-       if (selectedBrand && selectedBrand.trim() !== "") {
+        if (selectedBrand && selectedBrand.trim() !== "") {
             url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
         }
         const cacheKey = `cache:GET:${url}`;
 
         if (forceRefresh) {
-            try { localStorage.removeItem(cacheKey); } catch (_) {}
+            try { localStorage.removeItem(cacheKey); } catch (_) { }
         } else {
             const cached = getCache(cacheKey);
             if (cached) {
@@ -619,7 +619,7 @@ const ProductsComponent = () => {
             const data = await response.json();
             setProductsData(data);
             if (forceRefresh) {
-                try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+                try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) { }
             }
         } catch (error) {
             if (error.name === "AbortError") {
@@ -653,7 +653,10 @@ const ProductsComponent = () => {
 
         const timeout = setTimeout(() => {
             if (localStorage.getItem("accessToken")) {
-                getProductsData();
+                // Prevent API call for Swiggy and Blinkit
+                if (operator !== "Swiggy" && operator !== "Blinkit") {
+                    getProductsData();
+                }
             }
         }, 100);
 
