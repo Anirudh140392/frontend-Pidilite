@@ -138,7 +138,7 @@ const SmartControlDatatable = () => {
     { field: 'module', headerName: 'MODULE', minWidth: 150 },
     { field: 'type', headerName: 'TYPE', minWidth: 150 },
     {
-      field: 'frequency_type', headerName: 'SCHEDULE', minWidth: 150, type: "number", align: "left",
+      field: 'frequency', headerName: 'SCHEDULE', minWidth: 150, type: "number", align: "left",
       headerAlign: "left",
     },
     {
