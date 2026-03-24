@@ -80,6 +80,224 @@ const CampaignsComponent = (props, ref) => {
         return statusStr === 'ACTIVE' || statusStr === 'ON_HOLD';
     };
 
+    const CampaignsColumnFlipkart = [
+    {
+        field: "campaign_name",
+        headerName: "CAMPAIGN",
+        minWidth: 200,
+        renderCell: (params) => (
+            <Box
+                sx={{ display: "flex", flexDirection: "column", cursor: "pointer" }}
+                onClick={() =>
+                    handleCampaignClick(params.row.campaign_name, params.row.campaign_id)
+                }
+                className="redirect"
+            >
+                {params.row.campaign_name}
+            </Box>
+        ),
+    },
+    {
+        field: "Budget",
+        headerName: "BUDGET",
+        minWidth: 200,
+        renderCell: (params) => <BudgetCell
+            status={params.row.campaign_status}
+            value={params.row.Budget}
+            campaignId={params.row.campaign_id}
+            adType={params.row.ad_type}
+            brand={params.row.brand}
+            endDate={params.row.end_date || null}
+            platform={operator}
+            onUpdate={async (campaignId, newBudget) => {
+                console.log("Updating campaign:", campaignId, "New budget:", newBudget);
+                try {
+                    // Clear all campaign caches first
+                    await new Promise((resolve) => {
+                        const keysToRemove = [];
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.includes('/pidilite/campaign')) {
+                                keysToRemove.push(key);
+                            }
+                        }
+                        keysToRemove.forEach(key => localStorage.removeItem(key));
+                        console.log(`Cleared ${keysToRemove.length} campaign cache entries`);
+                        resolve();
+                    });
+
+                    // Optimistically update local state
+                    setCampaignsData(prevData => ({
+                        ...prevData,
+                        data: prevData.data.map(campaign =>
+                            campaign.campaign_id === campaignId
+                                ? { ...campaign, Budget: newBudget }
+                                : campaign
+                        )
+                    }));
+
+                    // Step 1: Build URL and cache key for refresh
+                    const startDate = formatDate(dateRange[0].startDate);
+                    const endDate = formatDate(dateRange[0].endDate);
+                    const ts = `&_=${Date.now()}`;
+
+                    let url = `https://react-api-script.onrender.com/pidilite/campaign?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
+                    if (selectedBrand && selectedBrand.trim() !== "") {
+                        url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+                    }
+
+                    const cacheKey = `cache:GET:${url}`;
+
+                    // Step 2: Clear cache asynchronously
+                    await new Promise((resolve) => {
+                        localStorage.removeItem(cacheKey);
+                        resolve();
+                    });
+
+                    // Fetch fresh data immediately
+                    await handleRefresh();
+
+                    // Show success message
+
+                } catch (error) {
+                    console.error("Error during budget update refresh:", error);
+                    handleSnackbarOpen("Failed to refresh after budget update", "error");
+                }
+            }}
+            onSnackbarOpen={handleSnackbarOpen}
+        />,
+        headerAlign: "left",
+        type: "number",
+        align: "left",
+    },
+    {
+        field: "campaign_status",
+        headerName: "STATUS",
+        minWidth: 100,
+        align: "center",
+        headerAlign: "center",
+        renderCell: (params) => {
+            const status = params.row.campaign_status;
+
+            if (updatingCampaigns[params.row.campaign_id]) {
+                return (
+                    <Box sx={{ height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <CircularProgress size={24} />
+                    </Box>
+                );
+            }
+
+            // Toggle ON for LIVE, TOTAL_BUDGET_MET, and other running states
+            // Toggle OFF for PAUSED and other inactive states
+            const isActive = status === "LIVE" || status === "TOTAL_BUDGET_MET";
+
+            return (
+                <Switch
+                    checked={isActive}
+                    onChange={() => handleToggleF(
+                        params.row.campaign_id,
+                        status,
+                    )}
+                />
+            );
+        },
+        type: "singleSelect",
+    },
+    {
+        field: "ad_type_label",
+        headerName: "AD TYPE",
+        minWidth: 120,
+    },
+    {
+        field: "views_y",
+        headerName: "IMPRESSIONS",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.views_y}
+                percentValue={params.row.views_diff}
+            />
+        ),
+    },
+    {
+        field: "clicks_y",
+        headerName: "CLICKS",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.clicks_y}
+                percentValue={params.row.clicks_diff}
+            />
+        ),
+    },
+    {
+        field: "cpc",
+        headerName: "CPC",
+        minWidth: 120,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.cpc}
+                percentValue={params.row.cpc_diff}
+            />
+        ),
+    },
+    {
+        field: "cost_y",
+        headerName: "SPEND",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.cost_y}
+                percentValue={params.row.cost_diff}
+            />
+        ),
+    },
+    {
+        field: "total_converted_units_y",
+        headerName: "ORDERS",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.total_converted_units_y}
+                percentValue={params.row.total_converted_units_diff}
+            />
+        ),
+    },
+    {
+        field: "total_converted_revenue_y",
+        headerName: "SALES",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.total_converted_revenue_y}
+                percentValue={params.row.total_converted_revenue_diff}
+            />
+        ),
+    },
+    {
+        field: "roi_y",
+        headerName: "ROI",
+        minWidth: 120,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.roi_y}
+                percentValue={params.row.roi_diff}
+            />
+        ),
+    },
+    {
+        field: "acos",
+        headerName: "ACOS",
+        minWidth: 120,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.acos}
+                percentValue={params.row.acos_diff}
+            />
+        ),
+    },
+];
+
     const CampaignsColumnBlinkit = [
         {
             field: "campaign_name",
@@ -766,10 +984,28 @@ const CampaignsComponent = (props, ref) => {
             }
 
             const data = await response.json();
-            console.log("Campaigns data fetched:", data);
-            setCampaignsData(data);
+            console.log("Campaigns data fetched:", {
+                rowCount: Array.isArray(data) ? data.length : data.data?.length,
+                firstCampaign: Array.isArray(data) ? data[0]?.campaign_name : data.data?.[0]?.campaign_name,
+                fullResponse: data
+            });
+            
+            // Handle different response structures for different platforms
+            let processedData = {};
+            if (Array.isArray(data)) {
+                // If response is directly an array (Flipkart)
+                processedData = { data };
+            } else if (data.data && Array.isArray(data.data)) {
+                // If response has nested data field
+                processedData = data;
+            } else {
+                // Default structure
+                processedData = data;
+            }
+            
+            setCampaignsData(processedData);
             if (forceRefresh) {
-                try { setCache(cacheKey, data, 5 * 60 * 1000); } catch (_) { }
+                try { setCache(cacheKey, processedData, 5 * 60 * 1000); } catch (_) { }
             }
         } catch (error) {
             if (error.name === "AbortError") {
@@ -799,6 +1035,8 @@ const CampaignsComponent = (props, ref) => {
             if (selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
+
+            const cacheKey = `cache:GET:${url}`;
 
             // Clear old cache asynchronously
             await new Promise((resolve) => {
@@ -830,12 +1068,25 @@ const CampaignsComponent = (props, ref) => {
 
             const freshData = await response.json();
 
+            // Handle different response structures for different platforms
+            let processedFreshData = {};
+            if (Array.isArray(freshData)) {
+                // If response is directly an array (Flipkart)
+                processedFreshData = { data: freshData };
+            } else if (freshData.data && Array.isArray(freshData.data)) {
+                // If response has nested data field
+                processedFreshData = freshData;
+            } else {
+                // Default structure
+                processedFreshData = freshData;
+            }
+
             // Step 3: Update state with new data
-            setCampaignsData(freshData);
+            setCampaignsData(processedFreshData);
 
             // Step 4: Optionally re-cache fresh data
             try {
-                localStorage.setItem(cacheKey, JSON.stringify(freshData));
+                localStorage.setItem(cacheKey, JSON.stringify(processedFreshData));
             } catch (err) {
                 console.warn("Could not re-cache fresh data:", err);
             }
@@ -905,6 +1156,7 @@ const CampaignsComponent = (props, ref) => {
 
     const columns = useMemo(() => {
         if (operator === "Blinkit") return CampaignsColumnBlinkit;
+        if (operator === "Flipkart") return CampaignsColumnFlipkart;
         if (operator === "Zepto") return CampaignsColumnZepto;
         if (operator === "Swiggy") return CampaignsColumnSwiggy;
         return [];
@@ -986,6 +1238,32 @@ const CampaignsComponent = (props, ref) => {
             campaignType: statusStr,
             adType: null,
             currentStatus
+        });
+    };
+
+    const handleToggleF = (campaignId, currentStatus) => {
+        console.log('currentStatus', currentStatus)
+        // Determine new status based on current status (Flipkart status values)
+        const statusStr = String(currentStatus).toUpperCase().trim();
+        console.log("Toggling campaign:", campaignId, "Current status:", statusStr);
+        let newStatus;
+
+        // For Flipkart: if status is LIVE or TOTAL_BUDGET_MET (toggle is ON), change to PAUSED
+        // If toggle is OFF (PAUSED), change to LIVE
+        if (statusStr === 'LIVE' || statusStr === 'TOTAL_BUDGET_MET') {
+            newStatus = 'PAUSED';
+        } else {
+            newStatus = 'LIVE';
+        }
+
+        setConfirmation({
+            show: true,
+            campaignId,
+            campaignType: statusStr,
+            adType: null,
+            currentStatus,
+            newStatus,
+            platform: operator
         });
     };
 
@@ -1086,8 +1364,21 @@ const CampaignsComponent = (props, ref) => {
 
             const freshData = await freshResponse.json();
 
+            // Handle different response structures for different platforms
+            let processedFreshData = {};
+            if (Array.isArray(freshData)) {
+                // If response is directly an array (Flipkart)
+                processedFreshData = { data: freshData };
+            } else if (freshData.data && Array.isArray(freshData.data)) {
+                // If response has nested data field
+                processedFreshData = freshData;
+            } else {
+                // Default structure
+                processedFreshData = freshData;
+            }
+
             // Step 4: Update state with fresh data
-            setCampaignsData(freshData);
+            setCampaignsData(processedFreshData);
 
             // Show success message
             handleSnackbarOpen(data.message || "Campaign status updated successfully!", "success");
@@ -1247,7 +1538,8 @@ const CampaignsComponent = (props, ref) => {
                         isLoading={isLoading}
                         isExport={true}
                         columns={columns}
-                        data={campaignsData.data || []} />
+                        data={campaignsData.data || []}
+                        getRowId={(row) => row.campaign_id} />
                 </div>
             </div>
             <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }}

@@ -78,6 +78,11 @@ const GoalsOverview = () => {
     };
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setLoading(true);
+        setRows([]);
+        setAllGoalsData([]);
+        setError(null);
         fetchGoalsData();
     }, [operator]);
 

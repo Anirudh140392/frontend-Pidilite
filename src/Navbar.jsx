@@ -383,7 +383,7 @@ const Navbar = () => {
                      <Accordion.Item eventKey="1">
               <Accordion.Header>Control Tower</Accordion.Header>
               <Accordion.Body>
-                {["Amazon","Zepto","BigBasket","Blinkit","Swiggy"].includes(operatorName) && (
+                {["Amazon","Zepto","BigBasket","Blinkit","Swiggy","Flipkart"].includes(operatorName) && (
                   <RedirectLink
                     url={`/watch-tower${operatorTypeParams === ""
                         ? `?operator=${OPERATOR.AMAZON}`
@@ -406,7 +406,7 @@ const Navbar = () => {
                         <Accordion.Item eventKey="1">
                             <Accordion.Header>Activation</Accordion.Header>
                             <Accordion.Body>
-                                {["Blinkit","Amazon","Zepto","Swiggy","BigBasket"].includes(operatorName) && (
+                                {["Blinkit","Amazon","Zepto","Swiggy","BigBasket","Flipkart"].includes(operatorName) && (
                                     <RedirectLink
                                         url={`/${operatorTypeParams === ""
                                             ? `?operator=${OPERATOR.AMAZON}`
@@ -442,7 +442,7 @@ const Navbar = () => {
                                         }
                                     />
                                 )}
-                                {!["Blinkit","Amazon","Zepto","Swiggy"].includes(operatorName) && (
+                                {!["Blinkit","Amazon","Zepto","Swiggy","BigBasket","Flipkart"].includes(operatorName) && (
                                     <RedirectLink
                                         url={`/keyword-analysis${operatorTypeParams === ""
                                             ? `?operator=${OPERATOR.AMAZON}`
@@ -460,7 +460,7 @@ const Navbar = () => {
                                         }
                                     />
                                 )}
-                                {!["Blinkit","Amazon","Zepto","Swiggy","BigBasket"].includes(operatorName) && (
+                                {!["Blinkit","Amazon","Zepto","Swiggy","BigBasket","Flipkart"].includes(operatorName) && (
                                     <RedirectLink
                                         url={`/product-analytics${operatorTypeParams === ""
                                             ? `?operator=${OPERATOR.AMAZON}`
@@ -496,7 +496,7 @@ const Navbar = () => {
                                         }
                                     />
                                 )}
-                                {["Blinkit","Amazon","Zepto","Swiggy"].includes(operatorName) && (
+                                {["Blinkit","Amazon","Zepto","Swiggy","BigBasket","Flipkart"].includes(operatorName) && (
                                     <RedirectLink
                                         url={`/history${operatorTypeParams === ""
                                             ? `?operator=${OPERATOR.AMAZON}`

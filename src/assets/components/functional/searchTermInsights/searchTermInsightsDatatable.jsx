@@ -72,6 +72,9 @@ const SearchTermInsightsDatatable = () => {
     };
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setKeywordData([]);
+        setIsLoading(true);
         const timeout = setTimeout(() => {
             fetchKeywordData();
         }, 100);

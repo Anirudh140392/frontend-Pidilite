@@ -87,6 +87,9 @@ const ExistingKeywordsDatatable = () => {
     const abortControllerRef = useRef(null);
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setKeywordsData({});
+        setIsLoading(true);
         const timeout = setTimeout(() => {
             getKeywordsData();
         }, 100);

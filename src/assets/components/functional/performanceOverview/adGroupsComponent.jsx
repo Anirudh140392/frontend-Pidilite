@@ -77,6 +77,9 @@ const AdGroupsComponent = () => {
     };
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setAdGroupData([]);
+        setIsLoading(true);
         const timeout = setTimeout(() => {
             fetchAdGroupsData();
         }, 100);

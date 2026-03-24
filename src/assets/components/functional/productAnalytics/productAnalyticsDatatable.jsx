@@ -92,6 +92,9 @@ const ProductAnalyticsDatatable = () => {
     const abortControllerRef = useRef(null);
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setProductAnalyticsData({});
+        setIsLoading(true);
         const timeout = setTimeout(() => {
             getProductAnalyticsData();
         }, 100);

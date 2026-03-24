@@ -132,13 +132,25 @@ const AggregatedView = () => {
 
       const json = await response.json();
 
-      // Extract aggregated_data from API response (nested inside data object)
-      const rows = Array.isArray(json?.data?.aggregated_data)
-        ? json.data.aggregated_data
-        : Array.isArray(json.aggregated_data)
-          ? json.aggregated_data
-          : [];
+      // Extract data from API response - handle multiple response structures
+      let rows = [];
+      
+      // Try different possible response structures
+      if (Array.isArray(json?.data?.data)) {
+        // For Flipkart: data is nested at json.data.data
+        rows = json.data.data;
+      } else if (Array.isArray(json?.data?.aggregated_data)) {
+        rows = json.data.aggregated_data;
+      } else if (Array.isArray(json?.data)) {
+        // For other cases where data is directly in json.data as array
+        rows = json.data;
+      } else if (Array.isArray(json?.aggregated_data)) {
+        rows = json.aggregated_data;
+      } else if (Array.isArray(json?.aggregated_view)) {
+        rows = json.aggregated_view;
+      }
 
+      console.log("Aggregated View - Response structure:", { json, rows, rowCount: rows.length });
       setTableData(rows);
     } catch (error) {
       console.error("Failed to fetch aggregated data:", error);
@@ -149,6 +161,9 @@ const AggregatedView = () => {
   };
 
   useEffect(() => {
+    // Clear old data immediately when operator changes
+    setTableData([]);
+    setLoading(true);
     fetchAggregated();
   }, [operator, regionFilter, dateRange]);
 

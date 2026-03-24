@@ -83,6 +83,9 @@ const SmartControlDatatable = () => {
   };
 
   useEffect(() => {
+    // Clear old data immediately when operator changes
+    setRulesData({});
+    setIsLoading(true);
     const timeout = setTimeout(() => {
       getRulesData();
     }, 100);

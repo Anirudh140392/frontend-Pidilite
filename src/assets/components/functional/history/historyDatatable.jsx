@@ -128,6 +128,9 @@ const HistoryDatatable = () => {
     };
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setHistoryData({});
+        setIsLoading(true);
         const timeout = setTimeout(() => {
             getHistoryData();
         }, 100);

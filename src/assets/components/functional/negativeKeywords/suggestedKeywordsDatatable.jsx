@@ -90,6 +90,9 @@ const SuggestedKeywordsDatatable = () => {
     const abortControllerRef = useRef(null);
 
     useEffect(() => {
+        // Clear old data immediately when operator changes
+        setKeywordsData({});
+        setIsLoading(true);
         const timeout = setTimeout(() => {
             getKeywordsData();
         }, 100);
@@ -402,6 +405,124 @@ const SuggestedKeywordsDatatable = () => {
         },
         
     ];
+    const SuggestedKeywordsColumnFlipkart = [
+    {
+        field: "keyword_name",
+        headerName: "SEARCH TERM",
+        minWidth: 220,
+        renderCell: (params) => (
+            <div
+                className="text-icon-div cursor-pointer redirect"
+                onClick={() =>
+                    handleKeywordClick(params.row.keyword_name, params.row.campaign_id)
+                }
+            >
+                <Typography variant="body2">
+                    {params.row.keyword_name || "N/A"}
+                </Typography>
+            </div>
+        ),
+    },
+    {
+        field: "type",
+        headerName: "CAMPAIGN TYPE",
+        minWidth: 150,
+    },
+    {
+        field: "match_type",
+        headerName: "MATCH TYPE",
+        minWidth: 150,
+    },
+    {
+        field: "campaign_name",
+        headerName: "CAMPAIGN NAME",
+        minWidth: 220,
+    },
+    {
+        field: "impressions",
+        headerName: "IMPRESSIONS",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.impressions}
+                percentValue={params.row.impressions_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "clicks",
+        headerName: "CLICKS",
+        minWidth: 140,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.clicks}
+                percentValue={params.row.clicks_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "orders",
+        headerName: "ORDERS",
+        minWidth: 140,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.orders}
+                percentValue={params.row.orders_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "spend",
+        headerName: "SPEND",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.spend}
+                percentValue={params.row.spend_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "revenue",
+        headerName: "SALES",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.revenue}
+                percentValue={params.row.revenue_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "cpm",
+        headerName: "CPM",
+        minWidth: 130,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.cpm}
+                percentValue={params.row.cpm_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "roas",
+        headerName: "ROAS",
+        minWidth: 130,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.roas}
+                percentValue={params.row.roas_change}
+            />
+        ),
+        type: "number",
+    },
+];
 
     const SuggestedKeywordsColumnBlinkit = [
     {
@@ -654,6 +775,7 @@ const SuggestedKeywordsDatatable = () => {
 
     const columns = useMemo(() => {
         if (operator === "Blinkit") return SuggestedKeywordsColumnBlinkit;
+         if (operator === "Flipkart") return SuggestedKeywordsColumnFlipkart;
         if (operator === "Swiggy") return SuggestedKeywordsColumnSwiggy;
 
         if (operator === "Zepto") return SuggestedKeywordsColumnZepto;

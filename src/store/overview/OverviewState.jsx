@@ -94,7 +94,7 @@ const OverviewState = (props) => {
         const token = localStorage.getItem("accessToken");
         if (!token) {
             console.error("No access token found");
-            return;
+            return [];
         }
 
         try {
@@ -115,19 +115,25 @@ const OverviewState = (props) => {
             }, { ttlMs: 60 * 60 * 1000, cacheKey });
 
             if (!response.ok) {
-                throw new Error(`Error: ${response.status} ${response.statusText}`);
+                // For platforms that don't support brand-name endpoint, return empty array
+                console.warn(`Brand-name API not available for ${operator}, continuing without brands`);
+                return [];
             }
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error(`Failed to fetch brand data:`, error.message);
-            return null;
+            console.error(`Failed to fetch brand data for ${operator}:`, error.message);
+            // Return empty array as fallback instead of null
+            return [];
         }
     };
 
     const getBrandsData = useCallback(async () => {
         const data = await fetchBrandsAPI();
-        if (data) setBrands(data);
+        // Set brands even if empty array to ensure consistency
+        if (Array.isArray(data)) {
+            setBrands(data);
+        }
     }, [operator]);
 
     const getOverviewData = useCallback(async (forceRefresh = false) => {

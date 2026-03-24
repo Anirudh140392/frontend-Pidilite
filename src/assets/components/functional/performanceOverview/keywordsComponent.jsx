@@ -292,6 +292,156 @@ const KeywordsComponent = () => {
         return keyword;
     };
 
+    const KeywordsColumnFlipkart = [
+    {
+        field: "keyword_name",
+        headerName: "TARGET",
+        minWidth: 180,
+        renderCell: (params) => {
+            const keyword = params.row.keyword_name;
+            const isClickable = keyword && keyword !== "N/A";
+
+            return (
+                <div
+                    className={isClickable ? "text-icon-div cursor-pointer" : "text-icon-div"}
+                    onClick={
+                        isClickable
+                            ? () => handleKeywordClick(params.row.keyword_name, params.row.campaign_id)
+                            : undefined
+                    }
+                >
+                    <Typography
+                        className={isClickable ? "redirect" : ""}
+                        variant="body2"
+                        sx={{ color: isClickable ? "inherit" : "text.secondary" }}
+                    >
+                        {keyword || "N/A"}
+                    </Typography>
+                </div>
+            );
+        },
+    },
+    {
+        field: "match_type",
+        headerName: "MATCH TYPE",
+        minWidth: 150,
+        renderCell: (params) => params.row.match_type || "N/A",
+    },
+    {
+        field: "cpc",
+        headerName: "BID / CPC",
+        minWidth: 140,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.cpc}
+                percentValue={params.row.cpc_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "impressions",
+        headerName: "IMPRESSIONS",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.impressions}
+                percentValue={params.row.impressions_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "clicks",
+        headerName: "CLICKS",
+        minWidth: 140,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.clicks}
+                percentValue={params.row.clicks_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "ctr",
+        headerName: "CTR (%)",
+        minWidth: 120,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.ctr}
+                percentValue={params.row.ctr_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "spend",
+        headerName: "SPEND",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.spend}
+                percentValue={params.row.spend_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "orders",
+        headerName: "ORDERS",
+        minWidth: 140,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.orders}
+                percentValue={params.row.orders_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "revenue",
+        headerName: "SALES",
+        minWidth: 150,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.revenue}
+                percentValue={params.row.revenue_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "roas",
+        headerName: "ROAS",
+        minWidth: 120,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.roas}
+                percentValue={params.row.roas_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "cvr",
+        headerName: "CVR (%)",
+        minWidth: 120,
+        renderCell: (params) => (
+            <ColumnPercentageDataComponent
+                mainValue={params.row.cvr}
+                percentValue={params.row.cvr_change}
+            />
+        ),
+        type: "number",
+    },
+    {
+        field: "campaign_name",
+        headerName: "CAMPAIGN",
+        minWidth: 250,
+    },
+];
+
     const KeywordsColumnBlinkit = [
         {
             field: "keyword",
@@ -853,6 +1003,7 @@ const KeywordsComponent = () => {
 
     const columns = useMemo(() => {
         if (operator === "Blinkit") return KeywordsColumnBlinkit;
+        if (operator === "Flipkart") return KeywordsColumnFlipkart;
         if (operator === "Zepto") return KeywordsColumnZepto;
         if (operator === "Swiggy") return KeywordsColumnSwiggy;
         return [];
