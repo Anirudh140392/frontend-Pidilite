@@ -9,16 +9,71 @@ import {
 } from "../../../../utils/formatters";
 
 const TowerByCategory = ({ dateRange, formatDate, apiData, loading, error }) => {
+  const [selectedBrand, setSelectedBrand] = useState(null);
+
+  // Get brands list
+  const brandOptions = useMemo(() => {
+    if (!apiData?.brand_metrics) return [];
+    return Object.keys(apiData.brand_metrics).sort();
+  }, [apiData]);
 
   // Transform API data to categories format
   const transformCategories = () => {
-    if (!apiData?.category_metrics) return [];
+    // If a brand is selected, use brand_metrics formatted as platform rows
+    if (selectedBrand && apiData?.brand_metrics?.[selectedBrand]) {
+      const brandData = apiData.brand_metrics[selectedBrand];
+      
+      // Convert brand metrics (Platform: Metrics) to category format
+      return Object.entries(brandData).map(([platformName, platformData]) => {
+        const row = { name: platformName };
 
-    return Object.entries(apiData.category_metrics).map(([categoryName, platforms]) => {
+        // For brand view, we create a single row per platform
+        // and put the metrics in the "all" column (treating all platforms uniformly)
+        ['All', 'Flipkart', 'Flipkart Minutes', 'Blinkit', 'Zepto', 'Instamart'].forEach((platformKey) => {
+          const platformKeyLower = platformKey.toLowerCase();
+          
+          // Match the platform name with the current row's platform
+          if (platformName === platformKey) {
+            row[platformKeyLower] = {
+              ad_revenue: formatCurrency(platformData.Offtake),
+              ad_revenue_change: formatPercentage(platformData.Offtake_change),
+              ad_spends: formatCurrency(platformData.Ad_Spends),
+              ad_spends_change: formatPercentage(platformData.Ad_Spends_change),
+              roas: formatROAS(platformData.ROAS),
+              roas_change: formatPercentage(platformData.ROAS_change),
+              impressions: formatLargeNumber(platformData.Impressions * 1000000),
+              impressions_change: formatPercentage(platformData.Impressions_change),
+              orders: formatLargeNumber(platformData.Orders * 1000),
+              orders_change: formatPercentage(platformData.Orders_change),
+            };
+          } else {
+            row[platformKeyLower] = {
+              ad_revenue: '-',
+              ad_revenue_change: '-',
+              ad_spends: '-',
+              ad_spends_change: '-',
+              roas: '-',
+              roas_change: '-',
+              impressions: '-',
+              impressions_change: '-',
+              orders: '-',
+              orders_change: '-',
+            };
+          }
+        });
+
+        return row;
+      });
+    }
+
+    // Default: category_metrics view
+    const metricsData = apiData?.category_metrics;
+    if (!metricsData) return [];
+
+    return Object.entries(metricsData).map(([categoryName, platforms]) => {
       const category = { name: categoryName };
 
-      // Transform each platform's data
-      ['All', 'Blinkit', 'Zepto', 'Instamart'].forEach((platformKey) => {
+      ['All', 'Flipkart', 'Flipkart Minutes', 'Blinkit', 'Zepto', 'Instamart'].forEach((platformKey) => {
         const platformData = platforms[platformKey];
         const platformKeyLower = platformKey.toLowerCase();
 
@@ -154,55 +209,118 @@ const TowerByCategory = ({ dateRange, formatDate, apiData, loading, error }) => 
               className="ms-3 fw-bold text-dark"
               style={{ fontSize: "1.25rem", letterSpacing: "0.3px" }}
             >
-              Split by Category
+              Split by Category {selectedBrand && `- ${selectedBrand}`}
             </div>
           </div>
-          <div className="d-flex align-items-center">
-            <span
-              className="me-2 text-secondary fw-semibold"
-              style={{ fontSize: "0.95rem" }}
-            >
-              Metrics:
-            </span>
+          <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center">
+              <span
+                className="me-2 text-secondary fw-semibold"
+                style={{ fontSize: "0.95rem" }}
+              >
+                Brand:
+              </span>
 
-            <Dropdown align="end">
-              <Dropdown.Toggle
-                variant="light"
-                className="border rounded-pill py-2 px-4 shadow-sm"
-                style={{
-                  fontSize: "0.95rem",
-                  fontWeight: 500,
-                  backgroundColor: "#f8f9fa",
-                  color: "#495057",
-                  minWidth: 180,
-                  textAlign: "left",
-                }}
-              >
-                {selectedMetric?.label || "Select Metrics"}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                style={{
-                  maxHeight: "240px",
-                  overflowY: "auto",
-                  width: "100%",
-                  minWidth: "180px",
-                }}
-              >
-                {metricOptions.map((opt, i) => (
+              <Dropdown align="end">
+                <Dropdown.Toggle
+                  variant="light"
+                  className="border rounded-pill py-2 px-4 shadow-sm"
+                  style={{
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    backgroundColor: "#f8f9fa",
+                    color: "#495057",
+                    minWidth: 180,
+                    textAlign: "left",
+                  }}
+                >
+                  {selectedBrand || "All Brands"}
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  style={{
+                    maxHeight: "300px",
+                    overflowY: "auto",
+                    width: "100%",
+                    minWidth: "180px",
+                  }}
+                >
                   <Dropdown.Item
-                    key={i}
-                    onClick={() => setSelectedMetric(opt)}
+                    onClick={() => setSelectedBrand(null)}
                     className="py-2"
                     style={{
                       fontSize: "0.9rem",
-                      whiteSpace: "normal",
+                      fontWeight: selectedBrand === null ? 600 : 400,
+                      backgroundColor: selectedBrand === null ? "#f0f0f0" : "transparent",
                     }}
                   >
-                    {opt.label}
+                    All Brands
                   </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
+                  <Dropdown.Divider />
+                  {brandOptions.map((brand) => (
+                    <Dropdown.Item
+                      key={brand}
+                      onClick={() => setSelectedBrand(brand)}
+                      className="py-2"
+                      style={{
+                        fontSize: "0.9rem",
+                        fontWeight: selectedBrand === brand ? 600 : 400,
+                        backgroundColor: selectedBrand === brand ? "#f0f0f0" : "transparent",
+                      }}
+                    >
+                      {brand}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+
+            <div className="d-flex align-items-center">
+              <span
+                className="me-2 text-secondary fw-semibold"
+                style={{ fontSize: "0.95rem" }}
+              >
+                Metrics:
+              </span>
+
+              <Dropdown align="end">
+                <Dropdown.Toggle
+                  variant="light"
+                  className="border rounded-pill py-2 px-4 shadow-sm"
+                  style={{
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    backgroundColor: "#f8f9fa",
+                    color: "#495057",
+                    minWidth: 180,
+                    textAlign: "left",
+                  }}
+                >
+                  {selectedMetric?.label || "Select Metrics"}
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  style={{
+                    maxHeight: "240px",
+                    overflowY: "auto",
+                    width: "100%",
+                    minWidth: "180px",
+                  }}
+                >
+                  {metricOptions.map((opt, i) => (
+                    <Dropdown.Item
+                      key={i}
+                      onClick={() => setSelectedMetric(opt)}
+                      className="py-2"
+                      style={{
+                        fontSize: "0.9rem",
+                        whiteSpace: "normal",
+                      }}
+                    >
+                      {opt.label}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
           </div>
         </div>
 

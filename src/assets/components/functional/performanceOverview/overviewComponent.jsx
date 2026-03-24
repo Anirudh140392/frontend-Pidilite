@@ -57,7 +57,7 @@ const OverviewComponent = () => {
             headerAlign: "left",
         },
         {
-            field: "Estimated_Budget_Consumed",
+            field: "Spend",
             headerName: "SPEND",
             minWidth: 150,
             type: "number",
@@ -97,7 +97,7 @@ const OverviewComponent = () => {
             headerAlign: "left",
         },
         {
-            field: "Total_Sales",
+            field: "Sales",
             headerName: "SALES",
             minWidth: 150,
             type: "number",
@@ -106,7 +106,7 @@ const OverviewComponent = () => {
         },
 
         {
-            field: "Total_Orders",
+            field: "Orders",
             headerName: "ORDERS",
             minWidth: 150,
             type: "number",

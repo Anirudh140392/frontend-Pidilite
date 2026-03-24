@@ -160,8 +160,8 @@ const OverviewCardTopBox = ({ overViewData }) => {
     },
     {
       title: "CPC",
-      value: metrics.avg_cpc,
-      formatted: `₹${(metrics.avg_cpc || 0).toFixed(2)}`,
+      value: metrics.cpc,
+      formatted: `₹${(metrics.cpc || 0).toFixed(2)}`,
       sub: "Average CPC",
       icon: <TrendingUp size={20} />,
       color: "#9333ea",

@@ -28,11 +28,15 @@ const TowerPlatformOverview = ({ dateRange, formatDate, apiData, loading, error 
       {
         key: "flipkart",
         label: "Flipkart",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Flipkart_logo.svg",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Flipkart_logo.png",
         apiKey: "Flipkart",
       },
-      {
-        key: "blinkit",
+      {        key: "flipkart-minutes",
+        label: "Flipkart Minutes",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Flipkart_logo.svg",
+        apiKey: "Flipkart Minutes",
+      },
+      {        key: "blinkit",
         label: "Blinkit",
         logo: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Blinkit-yellow-rounded.svg",
         apiKey: "Blinkit",
