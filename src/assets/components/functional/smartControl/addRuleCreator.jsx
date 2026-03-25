@@ -6,7 +6,7 @@ import TextFieldComponent from "../../molecules/textFieldCompnent";
 
 const AddRuleCreator = (props) => {
 
-    const { editRuleData, setShowRuleModal, getRulesData } = props;
+    const { editRuleData, setShowRuleModal, getRulesData, operator } = props;
 
     const [ruleData, setRuleData] = useState({});
     const [showFilters, setShowFilters] = useState(false);

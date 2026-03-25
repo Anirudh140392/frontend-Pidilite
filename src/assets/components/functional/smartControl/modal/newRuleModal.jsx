@@ -6,7 +6,7 @@ import AddRuleCreator from "../addRuleCreator";
 const NewRuleModal = (props) => {
 
     const {showRuleModal,
-        setShowRuleModal} = props;
+        setShowRuleModal, operator} = props;
 
     return(
         <Modal show={showRuleModal} onHide={() => setShowRuleModal(false)} size="md">
@@ -19,7 +19,8 @@ const NewRuleModal = (props) => {
                 <ErrorBoundary>
                     <AddRuleCreator
                         setShowRuleModal={setShowRuleModal}
-                        showRuleModal={showRuleModal} />
+                        showRuleModal={showRuleModal}
+                        operator={operator} />
                 </ErrorBoundary>
             </Modal.Body>
         </Modal>

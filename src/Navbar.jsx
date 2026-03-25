@@ -426,18 +426,12 @@ const Navbar = () => {
                                 )}
                                 {["Amazon","Zepto","BigBasket","Blinkit","Swiggy"].includes(operatorName) && (
                                     <RedirectLink
-                                        url={`/rules${operatorTypeParams === ""
-                                            ? `?operator=${OPERATOR.AMAZON}`
-                                            : operatorTypeParams
-                                            }`}
+                                        url={`/rules?operator=${operatorName || OPERATOR.AMAZON}`}
                                         label="Rules"
                                         pathName={pathName}
                                         onClick={() =>
                                             setPathName(
-                                                `/rules${operatorTypeParams === ""
-                                                    ? `?operator=${OPERATOR.AMAZON}`
-                                                    : operatorTypeParams
-                                                }`
+                                                `/rules?operator=${operatorName || OPERATOR.AMAZON}`
                                             )
                                         }
                                     />

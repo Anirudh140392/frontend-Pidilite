@@ -75,7 +75,7 @@ const SmartControlDatatable = () => {
       if (error.name === "AbortError") {
         console.log("Previous request aborted due to operator change.");
       } else {
-        console.error("Failed to fetch keywords data:", error.message);
+        console.error("Failed to fetch rules data:", error.message);
       }
     } finally {
       setIsLoading(false);
@@ -84,7 +84,7 @@ const SmartControlDatatable = () => {
 
   useEffect(() => {
     // Clear old data immediately when operator changes
-    setRulesData({});
+    setRulesData(null);
     setIsLoading(true);
     const timeout = setTimeout(() => {
       getRulesData();
@@ -107,7 +107,7 @@ const SmartControlDatatable = () => {
 
   const onCampaignClick = (value) => {
     campaignSetter(value)
-    navigate(`/?operator=${operator}&tab=keywords`)
+    navigate(`/?operator=${operator}&tab=KEYWORDS`)
   }
 
   const handleOpenConfirmDialog = (rule) => {
@@ -201,7 +201,7 @@ const SmartControlDatatable = () => {
     },
   ], [])
 
-  const SmartControlData = rulesData?.data.map((item) => ({
+  const SmartControlData = (rulesData?.data || []).map((item) => ({
     ...item,
     id: item.id,
     name: item.rule_name,
@@ -314,8 +314,12 @@ const SmartControlDatatable = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <EditRuleModal getRulesData={getRulesData} showEditRuleModal={showEditRuleModal}
-        setShowEditRuleModal={setShowEditRuleModal} editRuleData={selectedRule} />
+      <EditRuleModal 
+        getRulesData={getRulesData} 
+        showEditRuleModal={showEditRuleModal}
+        setShowEditRuleModal={setShowEditRuleModal} 
+        editRuleData={selectedRule}
+        operator={operator} />
       <div className="datatable-con">
         <MuiDataTableComponent
           isLoading={isLoading}
