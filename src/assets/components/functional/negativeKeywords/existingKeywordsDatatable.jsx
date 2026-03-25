@@ -9,7 +9,7 @@ import { getCache, setCache } from "../../../../services/cacheUtils";
 
 const ExistingKeywordsDatatable = () => {
 
-    const { dateRange, formatDate } = useContext(overviewContext)
+    const { dateRange, formatDate, selectedBrand } = useContext(overviewContext)
 
     const [keywordsData, setKeywordsData] = useState({})
     const [isLoading, setIsLoading] = useState(false)
@@ -43,7 +43,14 @@ const ExistingKeywordsDatatable = () => {
         const endDate = formatDate(dateRange[0].endDate);
 
         try {
-            const url = `https://react-api-script.onrender.com/pidilite/existing_negative_keyword?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
+            let url = `https://react-api-script.onrender.com/pidilite/existing_negative_keyword?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand) {
+                url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+            }
             const cacheKey = `cache:GET:${url}`;
 
             // Check cache first
@@ -100,7 +107,7 @@ const ExistingKeywordsDatatable = () => {
             }
             clearTimeout(timeout);
         }
-    }, [operator, dateRange]);
+    }, [operator, dateRange, selectedBrand]);
 
     const handleAddNegativeKeyword = async (row) => {
         const token = localStorage.getItem("accessToken");

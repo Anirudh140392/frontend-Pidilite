@@ -37,7 +37,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
   const [loading, setLoading] = useState(false);
 
   const dataContext = useContext(overviewContext);
-  const { dateRange, formatDate } = dataContext || {};
+  const { dateRange, formatDate, selectedBrand } = dataContext || {};
   const [searchParams] = useSearchParams();
   const operator = searchParams.get("operator");
 
@@ -61,8 +61,17 @@ const OverviewCardTopBox = ({ overViewData }) => {
         const endDate = formatDate(dateRange[0].endDate);
         const host = "https://react-api-script.onrender.com";
 
+        let url = `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
+        if (operator === "Flipkart") {
+          if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+            url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+          }
+        } else if (selectedBrand && selectedBrand.trim() !== "") {
+          url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+        }
+
         const response = await fetch(
-          `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}`,
+          url,
           {
             method: "GET",
             headers: {
@@ -135,7 +144,7 @@ const OverviewCardTopBox = ({ overViewData }) => {
     };
 
     fetchDailyData();
-  }, [operator, dateRange, formatDate]);
+  }, [operator, dateRange, formatDate, selectedBrand]);
 
   // Generate sample trend data for each metric
   const generateChartData = (baseValue, variance = 0.15) => {

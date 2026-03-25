@@ -14,6 +14,21 @@ import { getCache, setCache } from "../../../../services/cacheUtils";
 import OnePercentageDataComponent from "../../common/onePercentageComponent";
 import ValueFormatter from "../../common/valueFormatter";
 
+const FLIPKART_BRANDS = [
+    "All Brands",
+    "wd40",
+    "fevicry",
+    "Fevicreate",
+    "fevicol",
+    "Cera Clean",
+    "Motomax",
+    "WD",
+    "stain off",
+    "roff",
+    "stainoff",
+    "shoefix"
+];
+
 const CampaignsComponent = (props, ref) => {
 
     const dataContext = useContext(overviewContext)
@@ -142,7 +157,7 @@ const CampaignsComponent = (props, ref) => {
                     const ts = `&_=${Date.now()}`;
 
                     let url = `https://react-api-script.onrender.com/pidilite/campaign?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-                    if (selectedBrand && selectedBrand.trim() !== "") {
+                    if (operator !== "Flipkart" && selectedBrand && selectedBrand.trim() !== "") {
                         url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
                     }
 
@@ -954,7 +969,7 @@ const CampaignsComponent = (props, ref) => {
         try {
             const ts = forceRefresh ? `&_=${Date.now()}` : "";
             let url = `https://react-api-script.onrender.com/pidilite/campaign?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-            if (selectedBrand && selectedBrand.trim() !== "") {
+            if (operator !== "Flipkart" && selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
             const cacheKey = `cache:GET:${url}`;
@@ -1032,7 +1047,7 @@ const CampaignsComponent = (props, ref) => {
             const ts = `&_=${Date.now()}`;
 
             let url = `https://react-api-script.onrender.com/pidilite/campaign?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-            if (selectedBrand && selectedBrand.trim() !== "") {
+            if (operator !== "Flipkart" && selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
 
@@ -1168,7 +1183,7 @@ const CampaignsComponent = (props, ref) => {
             const startDate = formatDate(dateRange[0].startDate);
             const endDate = formatDate(dateRange[0].endDate);
             let url = `https://react-api-script.onrender.com/pidilite/campaign_graph?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}&platform=${operator}&campaign_id=${campaignId}`;
-            if (selectedBrand && selectedBrand.trim() !== "") {
+            if (operator !== "Flipkart" && selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
             const cacheKey = `cache:GET:${url}`;
@@ -1331,7 +1346,7 @@ const CampaignsComponent = (props, ref) => {
             const ts = `&_=${Date.now()}`;
 
             let url = `https://react-api-script.onrender.com/pidilite/campaign?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-            if (selectedBrand && selectedBrand.trim() !== "") {
+            if (operator !== "Flipkart" && selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
 

@@ -10,6 +10,7 @@ import ErrorBoundary from "../../common/erroBoundryComponent";
 import OnePercentageDataComponent from "../../common/onePercentageComponent";
 import OverviewCardTopBox from "./overview/OverviewCardTopBox";
 import GoalsOverview from "./GoalsOverviews/GoalsOverview";
+import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import AggregatedView from "./overview/AggregatedView";
 
 const OverviewComponent = () => {
@@ -18,8 +19,24 @@ const OverviewComponent = () => {
     const { overviewData, getOverviewData, getBrandsData, dateRange, campaignName, formatDate } = dataContext
     //const { dateRange, getBrandsData, brands, formatDate, campaignName } = useContext(overviewContext)
     const { brands } = dataContext;
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const operator = searchParams.get("operator");
+    const selectedBrand = searchParams.get("brand") || "";
+
+    const FLIPKART_BRANDS = [
+        "All Brands",
+        "wd40",
+        "fevicry",
+        "Fevicreate",
+        "fevicol",
+        "Cera Clean",
+        "Motomax",
+        "WD",
+        "stain off",
+        "roff",
+        "stainoff",
+        "shoefix"
+    ];
 
     const CategoryColumnsAmazon = [
         { field: "Campaign_Tags", headerName: "CAMPAIGN TAGS", minWidth: 200, type: "string", align: "left", headerAlign: "left" },
@@ -281,7 +298,7 @@ const OverviewComponent = () => {
         if (localStorage.getItem("accessToken")) {
             getOverviewData();
         }
-    }, [operator, dateRange, getOverviewData]);
+    }, [operator, dateRange, selectedBrand, getOverviewData]);
 
     const CTRWidget = ({ firstHeadingText, firstHeadingData, secondHeadingText, secondHeadingData, isSecondHeadingRequired = true }) => {
         return (
@@ -332,7 +349,7 @@ const OverviewComponent = () => {
 
     return (
         <React.Fragment>
-            <div className="shadow-box-con top-overview-con">
+            <div className={`shadow-box-con top-overview-con ${operator === "Flipkart" ? "with-brand-filter" : ""}`}>
                 <div className="row">
                     <OverviewCardTopBox overViewData={overviewData} />
                 </div>

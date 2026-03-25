@@ -35,7 +35,21 @@ const SmartControlDatatable = () => {
 
   const [searchParams] = useSearchParams();
   const operator = searchParams.get("operator");
+  const selectedBrand = searchParams.get("brand") || "";
   const navigate = useNavigate()
+
+  // Helper function to build API URL with brand_name for Flipkart
+  const buildApiUrl = (baseUrl, params = {}) => {
+    let url = baseUrl;
+    Object.entries(params).forEach(([key, value], index) => {
+      url += `${index === 0 && !baseUrl.includes('?') ? '?' : '&'}${key}=${value}`;
+    });
+    // Add brand_name parameter only for Flipkart platform when a brand is selected
+    if (operator === "Flipkart" && selectedBrand && selectedBrand.trim() !== "") {
+      url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+    }
+    return url;
+  };
 
   const getRulesData = async () => {
     if (!operator) return;
@@ -56,7 +70,8 @@ const SmartControlDatatable = () => {
     }
 
     try {
-      const response = await fetch(`https://react-api-script.onrender.com/pidilite/displayrules?platform=${operator}`, {
+      const url = buildApiUrl(`https://react-api-script.onrender.com/pidilite/displayrules`, { platform: operator });
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -83,7 +98,7 @@ const SmartControlDatatable = () => {
   };
 
   useEffect(() => {
-    // Clear old data immediately when operator changes
+    // Clear old data immediately when operator or brand changes
     setRulesData(null);
     setIsLoading(true);
     const timeout = setTimeout(() => {
@@ -96,7 +111,7 @@ const SmartControlDatatable = () => {
       }
       clearTimeout(timeout);
     }
-  }, [operator]);
+  }, [operator, selectedBrand]);
 
   const abortControllerRef = useRef(null);
 
@@ -199,7 +214,7 @@ const SmartControlDatatable = () => {
       ),
       sortable: false,
     },
-  ], [])
+  ], [updatingRuleId, deletingRuleId, selectedBrand])
 
   const SmartControlData = (rulesData?.data || []).map((item) => ({
     ...item,
@@ -219,7 +234,8 @@ const SmartControlDatatable = () => {
     setUpdatingRuleId(ruleId);
 
     try {
-      const response = await fetch(`https://react-api-script.onrender.com/pidilite/play-pause-rule?rule_id=${ruleId}&platform=${operator}`, {
+      const url = buildApiUrl(`https://react-api-script.onrender.com/pidilite/play-pause-rule`, { rule_id: ruleId, platform: operator });
+      const response = await fetch(url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -255,7 +271,8 @@ const SmartControlDatatable = () => {
     setDeletingRuleId(ruleId);
 
     try {
-      const response = await fetch(`https://react-api-script.onrender.com/pidilite/delete-rule?rule_id=${ruleId}&platform=${operator}`, {
+      const url = buildApiUrl(`https://react-api-script.onrender.com/pidilite/delete-rule`, { rule_id: ruleId, platform: operator });
+      const response = await fetch(url, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -11,7 +11,7 @@ import PlacementsComponent from "../../components/functional/performanceOverview
 import ProductsComponent from "../../components/functional/performanceOverview/productsComponent";
 import ErrorBoundary from "../../components/common/erroBoundryComponent";
 import { useLocation, useSearchParams } from "react-router";
-import { Button } from "@mui/material";
+import { Box, FormControl, InputLabel, Select, MenuItem, Button } from "@mui/material";
 import overviewContext from "../../../store/overview/overviewContext";
 
 const PerformanceOverviewComponent = () => {
@@ -22,6 +22,23 @@ const PerformanceOverviewComponent = () => {
   const { dateRange, campaignSetter } = useContext(overviewContext) || {
     dateRange: [{ startDate: new Date(), endDate: new Date() }],
   };
+
+  const selectedBrand = searchParams.get("brand") || "";
+
+  const FLIPKART_BRANDS = [
+    "All Brands",
+    "wd40",
+    "fevicry",
+    "Fevicreate",
+    "fevicol",
+    "Cera Clean",
+    "Motomax",
+    "WD",
+    "stain off",
+    "roff",
+    "stainoff",
+    "shoefix"
+  ];
 
   const daysDifference = () => {
     if (!dateRange?.length) return 0;
@@ -65,21 +82,43 @@ const PerformanceOverviewComponent = () => {
               <small className="d-inline-block py-1 px-2 bg-light rounded-pill">
                 Report Date = Last {daysDifference()} Days
               </small>
-              {showActiveTab === PERFORMANCETABS.CAMPAIGNS && (
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => campaignsRef.current?.refresh?.()}
-                >
-                  Refresh
-                </Button>
-              )}
-              {/*<Button
-                style={{ marginLeft: "10px", fontSize: "10px" }}
-                onClick={() => campaignSetter("")}
-              >
-                RESET FILTERS
-  </Button>*/}
+                {operatorName === "Flipkart" && (showActiveTab === PERFORMANCETABS.OVERVIEW || showActiveTab === PERFORMANCETABS.KEYWORDS) && (
+                  <Box sx={{ p: 1, display: "flex", justifyContent: "flex-end" }}>
+                    <FormControl size="small" variant="outlined" sx={{ minWidth: 200 }}>
+                      <InputLabel id="brand-select-label">Brand Filter</InputLabel>
+                      <Select
+                        labelId="brand-select-label"
+                        value={selectedBrand === "" ? "All Brands" : selectedBrand}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const newParams = new URLSearchParams(searchParams);
+                          if (val === "All Brands") {
+                            newParams.delete("brand");
+                          } else {
+                            newParams.set("brand", val);
+                          }
+                          setSearchParams(newParams);
+                        }}
+                        label="Brand Filter"
+                      >
+                        {FLIPKART_BRANDS.map((brand) => (
+                          <MenuItem key={brand} value={brand}>
+                            {brand}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                )}
+                {showActiveTab === PERFORMANCETABS.CAMPAIGNS && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => campaignsRef.current?.refresh?.()}
+                  >
+                    Refresh
+                  </Button>
+                )}
             </div>
             <TopTabs
               showActiveTab={showActiveTab}

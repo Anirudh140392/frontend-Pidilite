@@ -41,6 +41,21 @@ const KeywordsComponent = () => {
         return brands.sort();
     }, []);
 
+    const FLIPKART_BRANDS = [
+        "All Brands",
+        "wd40",
+        "fevicry",
+        "Fevicreate",
+        "fevicol",
+        "Cera Clean",
+        "Motomax",
+        "WD",
+        "stain off",
+        "roff",
+        "stainoff",
+        "shoefix"
+    ];
+
     const getKeywordsData = async (forceRefresh = false) => {
         if (!operator) return;
 
@@ -66,7 +81,11 @@ const KeywordsComponent = () => {
         const ts = forceRefresh ? `&_=${Date.now()}` : "";
 
         let url = `https://react-api-script.onrender.com/pidilite/keywords?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-        if (selectedBrand && selectedBrand.trim() !== "") {
+        if (operator === "Flipkart") {
+            if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+                url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+            }
+        } else if (selectedBrand && selectedBrand.trim() !== "") {
             url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
         }
         const cacheKey = `cache:GET:${url}`;
@@ -122,7 +141,11 @@ const KeywordsComponent = () => {
             const ts = `&_=${Date.now()}`;
 
             let url = `https://react-api-script.onrender.com/pidilite/keywords?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-            if (selectedBrand && typeof selectedBrand === "string") {
+            if (operator === "Flipkart") {
+                if (selectedBrand && typeof selectedBrand === "string" && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand && typeof selectedBrand === "string") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
 
@@ -212,7 +235,11 @@ const KeywordsComponent = () => {
             const startDate = formatDate(dateRange[0].startDate);
             const endDate = formatDate(dateRange[0].endDate);
             let url = `https://react-api-script.onrender.com/pidilite/keywords?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
-            if (selectedBrand && selectedBrand.trim() !== "") {
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
             const cacheKey = `cache:GET:${url}`;
@@ -1020,7 +1047,11 @@ const KeywordsComponent = () => {
             const endDate = formatDate(dateRange[0].endDate);
 
             let url = `https://react-api-script.onrender.com/pidilite/keyword_graph?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}&platform=${operator}&campaign_id=${campaignId}&keyword=${keywordName}`;
-            if (selectedBrand) {
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand) {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
 
@@ -1077,7 +1108,11 @@ const KeywordsComponent = () => {
                 campaign_id: campaignId
             });
 
-            if (selectedBrand) {
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand !== "All Brands") {
+                    params.append('brand_pro', selectedBrand);
+                }
+            } else if (selectedBrand) {
                 params.append('brand_name', selectedBrand);
             }
 
@@ -1121,7 +1156,7 @@ const KeywordsComponent = () => {
             <TrendsModal
                 showTrendsModal={showTrendsModal}
                 setShowTrendsModal={setShowTrendsModal} />
-            <div className="shadow-box-con-keywords aggregated-view-con">
+            <div className={`shadow-box-con-keywords aggregated-view-con ${operator === "Flipkart" ? "with-brand-filter" : ""}`}>
                 <div className="datatable-con-keywords">
                     <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
                         <Button variant="outlined" size="small" onClick={handleRefresh}>

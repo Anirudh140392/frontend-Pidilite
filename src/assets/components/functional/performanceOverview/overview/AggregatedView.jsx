@@ -39,9 +39,24 @@ const AggregatedView = () => {
     severity: "success",
   });
   const [tableData, setTableData] = useState([]);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const operator = searchParams.get("operator");
-  const { dateRange, formatDate } = useContext(overviewContext);
+  const { dateRange, formatDate, selectedBrand } = useContext(overviewContext);
+
+  const FLIPKART_BRANDS = [
+    "All Brands",
+    "wd40",
+    "fevicry",
+    "Fevicreate",
+    "fevicol",
+    "Cera Clean",
+    "Motomax",
+    "WD",
+    "stain off",
+    "roff",
+    "stainoff",
+    "shoefix"
+  ];
 
   // Map API data to table format
   const mappedData = useMemo(() => {
@@ -109,7 +124,14 @@ const AggregatedView = () => {
               ? "ad_type"
               : regionFilter.toLowerCase();
 
-      const url = `https://react-api-script.onrender.com/pidilite/aggregated-view?platform=${operator}&start_date=${startDate}&end_date=${endDate}&parameter_filter=${param}`;
+      let url = `https://react-api-script.onrender.com/pidilite/aggregated-view?platform=${operator}&start_date=${startDate}&end_date=${endDate}&parameter_filter=${param}`;
+      if (operator === "Flipkart") {
+          if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+              url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+          }
+      } else if (selectedBrand && selectedBrand.trim() !== "") {
+          url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+      }
       const cacheKey = `cache:GET:${url}`;
       const response = await cachedFetch(
         url,
@@ -165,7 +187,7 @@ const AggregatedView = () => {
     setTableData([]);
     setLoading(true);
     fetchAggregated();
-  }, [operator, regionFilter, dateRange]);
+  }, [operator, regionFilter, dateRange, selectedBrand]);
 
   const filteredData = useMemo(() => {
     let filtered = [...mappedData];
@@ -268,6 +290,30 @@ const AggregatedView = () => {
             <MenuItem value="Targeting">Targeting</MenuItem>
             <MenuItem value="Ad Type">Ad Type</MenuItem>
           </TextField>
+          {operator === "Flipkart" && (
+            <TextField
+              select
+              size="small"
+              value={selectedBrand === "" ? "All Brands" : selectedBrand}
+              onChange={(e) => {
+                const val = e.target.value;
+                const newParams = new URLSearchParams(searchParams);
+                if (val === "All Brands") {
+                  newParams.delete("brand");
+                } else {
+                  newParams.set("brand", val);
+                }
+                setSearchParams(newParams);
+              }}
+              sx={{ minWidth: 200 }}
+            >
+              {FLIPKART_BRANDS.map((brand) => (
+                <MenuItem key={brand} value={brand}>
+                  {brand}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
           <Button
             onClick={handleExport}
             style={{

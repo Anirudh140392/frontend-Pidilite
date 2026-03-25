@@ -23,7 +23,7 @@ const GoalsOverview = () => {
     const [error, setError] = useState(null);
     const [searchParams] = useSearchParams();
     const operator = searchParams.get("operator");
-    const { formatDate } = useContext(overviewContext);
+    const { formatDate, selectedBrand } = useContext(overviewContext);
 
     const fetchGoalsData = async () => {
         if (!operator) return;
@@ -32,7 +32,16 @@ const GoalsOverview = () => {
         setError(null);
         try {
             const token = localStorage.getItem("accessToken");
-            const url = `https://react-api-script.onrender.com/goalsengine/goals/list?platform=${operator}&brand=Pidilite`;
+            let url = `https://react-api-script.onrender.com/goalsengine/goals/list?platform=${operator}`;
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand) {
+                url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+            } else {
+                url += `&brand=Pidilite`;
+            }
             console.log("Fetching from URL:", url);
 
             const response = await fetch(url, {
@@ -84,7 +93,7 @@ const GoalsOverview = () => {
         setAllGoalsData([]);
         setError(null);
         fetchGoalsData();
-    }, [operator]);
+    }, [operator, selectedBrand]);
 
     const filteredRows = rows.filter((row) => {
         if (filter === "Active")

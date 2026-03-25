@@ -10,7 +10,7 @@ import { cachedFetch } from "../../../../services/cachedFetch";
 import { getCache, setCache } from "../../../../services/cacheUtils";
 const SuggestedKeywordsDatatable = () => {
 
-    const { dateRange, formatDate } = useContext(overviewContext)
+    const { dateRange, formatDate, selectedBrand } = useContext(overviewContext)
 
     const [keywordsData, setKeywordsData] = useState({})
     const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +44,14 @@ const SuggestedKeywordsDatatable = () => {
         const endDate = formatDate(dateRange[0].endDate);
 
         try {
-            const url = `https://react-api-script.onrender.com/pidilite/negative_keywords?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
+            let url = `https://react-api-script.onrender.com/pidilite/negative_keywords?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand) {
+                url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
+            }
             const cacheKey = `cache:GET:${url}`;
 
             // Check cache first
@@ -103,7 +110,7 @@ const SuggestedKeywordsDatatable = () => {
             }
             clearTimeout(timeout);
         }
-    }, [operator, dateRange]);
+    }, [operator, dateRange, selectedBrand]);
 
     const handleAddNegativeKeyword = async (row) => {
         const token = localStorage.getItem("accessToken");

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Table, Card, Container, Dropdown, Spinner, Alert } from "react-bootstrap";
 import { BsTable } from "react-icons/bs";
+import { useSearchParams, useNavigate } from "react-router";
 import {
   formatCurrency,
   formatPercentage,
@@ -9,7 +10,9 @@ import {
 } from "../../../../utils/formatters";
 
 const TowerByCategory = ({ dateRange, formatDate, apiData, loading, error }) => {
-  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const selectedBrand = searchParams.get("brand") || null;
 
   // Get brands list
   const brandOptions = useMemo(() => {
@@ -245,7 +248,11 @@ const TowerByCategory = ({ dateRange, formatDate, apiData, loading, error }) => 
                   }}
                 >
                   <Dropdown.Item
-                    onClick={() => setSelectedBrand(null)}
+                    onClick={() => {
+                      const newParams = new URLSearchParams(searchParams);
+                      newParams.delete("brand");
+                      navigate(`?${newParams.toString()}`);
+                    }}
                     className="py-2"
                     style={{
                       fontSize: "0.9rem",
@@ -259,7 +266,11 @@ const TowerByCategory = ({ dateRange, formatDate, apiData, loading, error }) => 
                   {brandOptions.map((brand) => (
                     <Dropdown.Item
                       key={brand}
-                      onClick={() => setSelectedBrand(brand)}
+                      onClick={() => {
+                        const newParams = new URLSearchParams(searchParams);
+                        newParams.set("brand", brand);
+                        navigate(`?${newParams.toString()}`);
+                      }}
                       className="py-2"
                       style={{
                         fontSize: "0.9rem",

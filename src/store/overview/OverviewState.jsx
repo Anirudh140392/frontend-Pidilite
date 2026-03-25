@@ -55,8 +55,12 @@ const OverviewState = (props) => {
 
         try {
             let url = `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}`;
-            // Only add brand_name parameter if a specific brand is selected (not empty string)
-            if (selectedBrand && selectedBrand.trim() !== "") {
+            // Only add parameter if a specific brand is selected (not empty string)
+            if (operator === "Flipkart") {
+                if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+                    url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+                }
+            } else if (selectedBrand && selectedBrand.trim() !== "") {
                 url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
             }
             const cacheKey = `cache:GET:${url}`;
@@ -160,8 +164,12 @@ const OverviewState = (props) => {
         const ts = forceRefresh ? `&_=${Date.now()}` : "";
 
         let url = `${host}/pidilite/new-overview?start_date=${startDate}&end_date=${endDate}&platform=${operator}${ts}`;
-        // Only add brand_name parameter if a specific brand is selected (not empty string)
-        if (selectedBrand && selectedBrand.trim() !== "") {
+        // Only add parameter if a specific brand is selected (not empty string)
+        if (operator === "Flipkart") {
+            if (selectedBrand && selectedBrand.trim() !== "" && selectedBrand !== "All Brands") {
+                url += `&brand_pro=${encodeURIComponent(selectedBrand)}`;
+            }
+        } else if (selectedBrand && selectedBrand.trim() !== "") {
             url += `&brand_name=${encodeURIComponent(selectedBrand)}`;
         }
         const cacheKey = `cache:GET:${url}`;
