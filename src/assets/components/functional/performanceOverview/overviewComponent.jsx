@@ -149,6 +149,92 @@ const OverviewComponent = () => {
         },
     ];
 
+    
+    const CategoryColumnsBlinkit = [
+        {
+            field: "Campaign_Tags",
+            headerName: "CAMPAIGN TAGS",
+            minWidth: 200,
+            type: "string",
+            align: "left",
+            headerAlign: "left",
+        },
+        {
+            field: "Estimated_Budget_Consumed",
+            headerName: "SPEND",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+        {
+            field: "Clicks",
+            headerName: "CLICKS",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+         {
+            field: "CPM",
+            headerName: "CPM",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+        {
+            field: "CPC",
+            headerName: "CPC",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+        {
+            field: "Impressions",
+            headerName: "IMPRESSIONS",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+        {
+            field: "Total_Sales",
+            headerName: "SALES",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+
+        {
+            field: "Total_Orders",
+            headerName: "ORDERS",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+        {
+            field: "ROAS",
+            headerName: "ROAS",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+       
+        {
+            field: "ACOS",
+            headerName: "ACOS",
+            minWidth: 150,
+            type: "number",
+            align: "left",
+            headerAlign: "left",
+        },
+    ];
+
 
     const CategoryColumnsSwiggy = [
         { field: "Campaign_Tags", headerName: "CAMPAIGN TAGS", minWidth: 200, type: "string", align: "left", headerAlign: "left" },
@@ -289,7 +375,7 @@ const OverviewComponent = () => {
         if (operator === "Zepto") return CategoryColumnsZepto;
         if (operator === "Flipkart") return CategoryColumnsFlipkart;
         if (operator === "Swiggy") return CategoryColumnsSwiggy;
-        if (operator === "Blinkit") return CategoryColumnsFlipkart; // Blinkit uses same structure as Flipkart
+        if (operator === "Blinkit") return CategoryColumnsBlinkit; // Blinkit uses same structure as Flipkart
         return CategoryColumnsFlipkart; // Default to standard structure
     }, [operator, brands]);
 
