@@ -288,11 +288,10 @@ const OverviewCardTopBox = ({ overViewData }) => {
                       <LineChart data={card.chartData}>
                         <XAxis
                           dataKey="name"
-                          tick={{ fontSize: 8, angle: -20, dy: 5 }}
+                          tick={false}
                           tickLine={false}
                           axisLine={false}
-                          height={40}
-                          interval={0}
+                          height={5}
                           padding={{ left: 10, right: 10 }}
                         />
                         <YAxis hide />

@@ -20,20 +20,6 @@ const NegativeKeywordsComponent = () => {
 
     const selectedBrand = searchParams.get("brand") || "";
 
-    const FLIPKART_BRANDS = [
-        "All Brands",
-        "wd40",
-        "fevicryl",
-        "Fevicreate",
-        "fevicol",
-        "Cera Clean",
-        "Motomax",
-        "WD",
-        "stain off",
-        "roff",
-        "stainoff",
-        "shoefix"
-    ];
 
     const daysDifference = () => {
         if (!dateRange?.length) return 0;
@@ -64,34 +50,6 @@ const NegativeKeywordsComponent = () => {
                             <small className="d-inline-block py-1 px-2 bg-light rounded-pill">
                                 Report Date = Last {daysDifference()} Days
                             </small>
-                            {operatorName === "Flipkart" && (
-                                <Box sx={{ p: 1, display: "flex", justifyContent: "flex-end" }}>
-                                    <FormControl size="small" variant="outlined" sx={{ minWidth: 200 }}>
-                                        <InputLabel id="brand-select-label">Brand Filter</InputLabel>
-                                        <Select
-                                            labelId="brand-select-label"
-                                            value={selectedBrand === "" ? "All Brands" : selectedBrand}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                const newParams = new URLSearchParams(searchParams);
-                                                if (val === "All Brands") {
-                                                    newParams.delete("brand");
-                                                } else {
-                                                    newParams.set("brand", val);
-                                                }
-                                                setSearchParams(newParams);
-                                            }}
-                                            label="Brand Filter"
-                                        >
-                                            {FLIPKART_BRANDS.map((brand) => (
-                                                <MenuItem key={brand} value={brand}>
-                                                    {brand}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-                            )}
                         </div>
                         <TopTabs
                             showActiveTab={showActiveTab}

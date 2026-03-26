@@ -26,11 +26,43 @@ const Header = () => {
   // Available operators - Flipkart, Zepto, and Blinkit
   const availableOperators = ["Swiggy", "Blinkit", "Zepto","Flipkart"];
 
+  // Flipkart brands
+  const FLIPKART_BRANDS = [
+    "All Brands",
+    "wd40",
+    "fevicryl",
+    "Fevicreate",
+    "fevicol",
+    "Cera Clean",
+    "Motomax",
+    "WD",
+    "stain off",
+    "roff",
+    "stainoff",
+    "shoefix"
+  ];
+
   // Get unique brands for dropdown
   const uniqueBrands = React.useMemo(() => {
     const brands = [...new Set(accountCombinations.map(combo => combo.brand))];
     return brands.sort();
   }, []);
+
+  const shouldShowFlipkartBrandDropdown = () => {
+    const isFlipkartOperator = showSelectedOperator === "Flipkart";
+    const tabFromUrl = searchParams.get("tab") || "";
+    const tab = tabFromUrl.toLowerCase();
+
+    if (location.pathname === "/" || location.pathname === "/performance-overview") {
+      return isFlipkartOperator && (tab === "overview" || tab === "keywords" || tab === "");
+    }
+
+    if (location.pathname === "/negative-keywords") {
+      return isFlipkartOperator;
+    }
+
+    return false;
+  };
 
   const getPageHeading = () => {
     const path = location.pathname.replace("/", "");
@@ -150,6 +182,37 @@ const Header = () => {
           </div>
         </div>
         <div className="d-flex actions-con">
+          {/* Brand Dropdown - only show when operator is Flipkart and on specific pages */}
+          {shouldShowFlipkartBrandDropdown() && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <FormControl size="small" variant="outlined" sx={{ minWidth: 150 }}>
+                <InputLabel id="flipkart-brand-select-label">Brand Filter</InputLabel>
+                <Select
+                  labelId="flipkart-brand-select-label"
+                  value={brandType === "" ? "All Brands" : brandType}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const newParams = new URLSearchParams(searchParams);
+                    if (val === "All Brands") {
+                      newParams.delete("brand");
+                    } else {
+                      newParams.set("brand", val);
+                    }
+                    setSearchParams(newParams);
+                  }}
+                  label="Brand Filter"
+                  sx={{ height: 38 }}
+                >
+                  {FLIPKART_BRANDS.map((brand) => (
+                    <MenuItem key={brand} value={brand}>
+                      {brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+
           {/* Operator Dropdown - hide on Watch Tower page */}
           {location.pathname !== "/watch-tower" && (
             <Dropdown className="operator-selected-tab">

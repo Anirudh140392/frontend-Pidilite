@@ -33,7 +33,7 @@ const TrendsComposedChart = ({ data, dates, bids, metric1, metric2 }) => {
             <ComposedChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
 
-                <XAxis dataKey="date" />
+                <XAxis dataKey="date" tick={false} />
 
                 <YAxis yAxisId="left" orientation="left" stroke="#007bff" tickFormatter={formatNumber} />
                 <YAxis yAxisId="right" orientation="right" stroke="#ffa500" tickFormatter={formatNumber} />
