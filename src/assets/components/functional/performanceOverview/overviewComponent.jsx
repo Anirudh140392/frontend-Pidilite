@@ -26,7 +26,7 @@ const OverviewComponent = () => {
     const FLIPKART_BRANDS = [
         "All Brands",
         "wd40",
-        "fevicry",
+        "fevicryl",
         "Fevicreate",
         "fevicol",
         "Cera Clean",
